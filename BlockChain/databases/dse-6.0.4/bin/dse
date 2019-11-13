@@ -1,0 +1,703 @@
+#!/bin/sh
+trap "exit 1" USR1
+export DSE_SCRIPT_PID=$$
+
+if [ -z "$BASH_VERSION" ]; then
+    exec bash "$0" "$@"
+    exit 1  # Will only get here if exec itself fails to run
+fi
+
+set -f
+
+MAYBE_NODEID=$1
+# remove 'dse-' prefix, just to add it again. This means the script
+# will accept node1, or dse-node1, as NODEID
+NODEID="dse-`echo $MAYBE_NODEID | sed 's/^dse-//g'`"
+
+# shortcut DSE multi-instance server node commands
+if [ -f /etc/dse/serverconfig/$NODEID ]; then
+    . /etc/dse/serverconfig/$NODEID
+    shift
+fi
+
+set +f
+
+# Absolute path to this script
+export DSE_SCRIPT="$(cd "`dirname "$0"`"; pwd)/dse"
+
+printUsage() {
+    echo "$0:"
+    echo "usage: dse [-f <config file> -u <username> -p <password> -a <jmx_username> -b <jmx_password>] <command> [command-args]"
+    echo ""
+    echo "Available commands:"
+    echo "  -v                              print DSE version"
+    echo "  cassandra                       run DSE server"
+    echo "  cassandra-stop                  stop DSE server"
+    echo "  fs                              run DSE File System shell"
+    echo "  hadoop fs                       run DSE File System (DseFs) command"
+    echo "  spark                           Spark shell"
+    echo "  spark-class                     Spark class"
+    echo "  spark-submit                    Submit Spark job"
+    echo "  spark-jobserver                 Spark Jobserver command"
+    echo "  spark-history-server            Spark History Server command"
+    echo "  spark-sql-thriftserver          Spark SQL Thriftserver command"
+    echo "  pyspark                         Spark Python shell"
+    echo "  spark-sql                       Spark SQL command line"
+    echo "  beeline                         Beeline client from Spark"
+    echo "  sparkR                          Spark R shell"
+    echo "  spark-sql-metastore-migrate     Migrate Spark SQL metastore from one DSE version to another"
+    echo "  client-tool                     Runs a DSE client tool command"
+    echo "  gremlin-console                 Runs Gremlin console"
+    echo "  exec <command>                  run <command> in DSE environment"
+    if [ -e /etc/dse/serverconfig ]; then
+        echo "  <node ID> <command>             Optionally specify the DSE Multi-Instance node ID as the first parameter. All following commands apply only to the specified node"
+    fi
+
+    echo_extensions
+
+    echo ""
+    exit 1
+}
+
+if [ -z "$DSE_CLIENT_FRAMEWORK" ]; then
+    export DSE_CLIENT_FRAMEWORK="dse"
+fi
+
+#parse DSE options, pass command to parseArgs()
+parsedArgs=0
+
+parseOptions() {
+  case $1 in
+    -u)
+        shift
+        export dse_username="$1"
+        shift
+        parseOptions "$@"
+        ;;
+    -p)
+        shift
+        export dse_password="$1"
+        shift
+        parseOptions "$@"
+        ;;
+    -a)
+        shift
+        export dse_jmx_username="$1"
+        shift
+        parseOptions "$@"
+        ;;
+    -b)
+        shift
+        export dse_jmx_password="$1"
+        shift
+        parseOptions "$@"
+        ;;
+    -f)
+        shift
+        export DSERC_FILE="$1"
+        shift
+        parseOptions "$@"
+        ;;
+    --framework)
+        shift
+        framework="$1"
+        shift
+        export DSE_CLIENT_FRAMEWORK="$framework"
+        parseOptions "$@"
+        ;;
+    *)
+        return
+        ;;
+  esac
+  parsedArgs=`expr $parsedArgs + 2`
+}
+
+parseOptions "$@"
+shift $parsedArgs
+
+if [ -z "$DSE_ENV" ]; then
+    for include in "$HOME/.dse-env.sh" \
+                   "`dirname "$0"`/dse-env.sh" \
+                   "/etc/dse/dse-env.sh"; do
+        if [ -r "$include" ]; then
+            DSE_ENV="$include"
+            break
+        fi
+    done
+fi
+
+if [ -z "$DSE_ENV" ]; then
+    echo "DSE_ENV could not be determined."
+    exit 1
+elif [ -r "$DSE_ENV" ]; then
+    . "$DSE_ENV"
+else
+    echo "Location pointed by DSE_ENV not readable: $DSE_ENV"
+    exit 1
+fi
+
+export DSE_ENV_LOADED=1
+
+if [  "$SPARK_HOME" != "$DSE_COMPONENTS_ROOT/spark" ]; then
+    if [ "$ALLOW_SPARK_HOME" != "true" -a "$ALLOW_SPARK_HOME" != "TRUE" ]; then
+        echo "SPARK_HOME is already set. Check whether there is another spark distribution already installed. Don't set SPARK_HOME when running DSE."
+        exit 1
+    fi
+fi
+
+if [ -z $CASSANDRA_ENV_FILE ]; then
+    if [ -f "$DSE_HOME/resources/cassandra/conf/cassandra-env.sh" ]; then
+        CASSANDRA_ENV_FILE=$DSE_HOME/resources/cassandra/conf/cassandra-env.sh
+    else
+        if [ -f "/etc/dse/cassandra/cassandra-env.sh" ]; then
+            CASSANDRA_ENV_FILE=/etc/dse/cassandra/cassandra-env.sh
+        else
+            CASSANDRA_ENV_FILE=cassandra-env.sh
+        fi
+    fi
+fi
+
+if [ -f "$CASSANDRA_ENV_FILE" ]; then
+    while read line
+    do
+        if [[ $line == JMX_PORT* ]]; then
+            CASSANDRA_JMX_PORT=`echo $line |  cut -d'"' -f 2`
+        fi
+    done < $CASSANDRA_ENV_FILE
+else
+    echo "Can't find $CASSANDRA_ENV_FILE"
+    exit 1
+fi
+
+export CASSANDRA_ENV_LOADED=1
+
+# if JMX_PORT is not set in environment, we use the port from cassandra-env.sh
+if [ "x$JMX_PORT" = "x" ]; then
+    JMX_PORT=$CASSANDRA_JMX_PORT
+fi
+
+export JMX_PORT
+
+# DSP-3842
+HADOOP_OPTS="$HADOOP_OPTS $DSE_OPTS"
+
+BIN="`dirname $0`"
+
+if [ "$DSE_CONSOLE_USE_COLORS" = "true" ]; then
+    export DSE_OPTS="$DSE_OPTS -Ddse.console.useColors=true "
+fi
+
+##################################### DSE Pluging/Extension Functions ####################################
+# determine dse extensions location
+if [ -z "$EXT_HOME" ]; then
+    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    for dir in "$DSE_HOME/resources/dse/ext" \
+                   "$DSE_HOME/ext" \
+                   "$DIR/../resources/dse/ext" \
+                   "$DIR/../ext"; do
+        if [ -d "$dir" ]; then
+            EXT_HOME="$dir"
+            break
+        fi
+    done
+fi
+
+function exist_extension_script(){
+   if [ -f "$EXT_HOME/dse-ext-$1" ]; then
+      return 0
+   else
+      return 1
+   fi
+}
+
+
+#### Runs an extension, returns 1 if the extension script could not be found
+#### usage run_extension extension-name args
+#### extension-name will run a script dse-ext-${extension-name}
+run_extension(){
+    export DSE_ENV
+    SCRIPT_NAME="$1"
+
+    exist_extension_script $SCRIPT_NAME
+    if [ "$?" -ne 0 ]; then
+      return 1;
+    fi
+
+    set_credentials
+    "$EXT_HOME/dse-ext-$SCRIPT_NAME" ${@:2}
+
+    return $?
+}
+
+function echo_extensions(){
+    for file in $EXT_HOME/dse-ext-*;
+    do
+        fileName=$(basename $file)
+        extensionName="${fileName#dse-ext-}"
+        extensionTitle=`grep -oe "TITLE:.*" $file | cut -d':' -f2-`
+        printf "  %-31s %s\n" "$extensionName" "$extensionTitle"
+    done
+}
+
+#########################################################################################################
+
+spark_sql_thrift_server() {
+    set_credentials
+    : ${SPARK_LOG_DIR:=$HOME/spark-thrift-server}
+    export SPARK_LOG_DIR
+    case "$1" in
+        start)
+            shift
+            run_with_framework "$SPARK_SBIN"/start-thriftserver.sh "$@"
+            exit $?
+            ;;
+        stop)
+            shift
+            run_with_framework "$SPARK_SBIN"/stop-thriftserver.sh "$@"
+            exit $?
+            ;;
+        *)
+            echo "$0:"
+            echo "usage: dse spark-sql-thriftserver <command> [Spark SQL Thriftserver Options]"
+            echo ""
+            echo "Available commands:"
+            echo "  start                             Start Spark SQL Thriftserver"
+            echo "  stop                              Stops Spark SQL Thriftserver"
+            exit 1
+            ;;
+    esac
+}
+
+alwayson_sql() {
+    set_credentials
+    case "$1" in
+        start)
+            shift
+            run_with_framework "$SPARK_SBIN"/start-thriftserver.sh "$@"
+            exit $?
+            ;;
+        stop)
+            shift
+            run_with_framework "$SPARK_SBIN"/stop-thriftserver.sh "$@"
+            exit $?
+            ;;
+        *)
+            exit 1
+            ;;
+    esac
+}
+
+DSE_SERVER_FLAG=dse.server_process
+
+parseArgs() {
+  CASSANDRA_EXTRA_ARGS=
+
+exit1() {
+  kill -USR1 $DSE_SCRIPT_PID
+}
+
+checkHome() {
+  if [ -z "$HOME" ]; then
+    echo "User home directory is not set. Please set HOME to an existing directory and try again."
+    exit1
+  fi
+  if [ ! -d "$HOME" ]; then
+    echo "User home is set to $HOME but that directory does not exist. Please create user home directory and try again."
+    exit1
+  fi
+  if [ ! -w "$HOME" ]; then
+    echo "User home is set to $HOME but the current user cannot create files there. Please setup user home directory properly and try again."
+    exit1
+  fi
+}
+
+case "$1" in
+    cassandra)
+        shift
+        set_credentials
+        case "`uname`" in
+            CYGWIN*)
+                JAVA_LIBRARY_PATH=`cygpath -p -w "$JAVA_LIBRARY_PATH"`
+            ;;
+        esac
+
+        for arg in "$@"
+        do
+            if [ "$arg" = "-s" ]
+            then
+                export SOLR_ENABLED="1"
+            fi
+            if [ "$arg" = "-k" ]
+            then
+                export SPARK_ENABLED="1"
+            fi
+            if [ "$arg" = "-g" ]
+            then
+                export GRAPH_ENABLED="1"
+            fi
+            if [ "$arg" = "-t" ]
+            then
+                echo "Hadoop functionality has been removed from DSE. Please try again without the obsolete Hadoop option \"-t\"."
+                exit 1
+            fi
+        done
+
+        if [ "$SPARK_ENABLED" = "1" ]
+        then
+            . "$SPARK_CONF_DIR"/spark-env.sh
+            # Unset SPARK_LOCAL_DIRS, so AlwaysOn SQL creates its own local directories.
+            unset SPARK_LOCAL_DIRS
+        fi
+
+        export lower_heap_limit_in_mb="1024"
+        export higher_heap_limit_in_mb="8192"
+
+        if [ "$SOLR_ENABLED" = "1" ]
+        then
+            export lower_heap_limit_in_mb="2048"
+            export higher_heap_limit_in_mb="14336"
+            export solr_home_property="-Dsolr.solr.home=solr/"
+            export solr_disable_configEdit="-Ddisable.configEdit=true"
+        fi
+        if [ "$SPARK_ENABLED" = "1" ]
+        then
+            export lower_heap_limit_in_mb="1536"
+            export higher_heap_limit_in_mb="10240"
+        fi
+
+        export JVM_OPTS="-D$DSE_SERVER_FLAG $JVM_OPTS"
+        exec "$CASSANDRA_BIN"/cassandra "$@" $CASSANDRA_EXTRA_ARGS "$solr_home_property" "$solr_disable_configEdit"
+        # Should not be reached
+        exit 1
+        ;;
+    cassandra-stop)
+        shift
+        set_credentials
+        STOP_SWITCH=$1
+        PID=""
+
+        case "$STOP_SWITCH" in
+            "-p")
+                shift
+                PID=$1
+                ;;
+        esac
+        if [ "x$PID" = "x" ]; then
+            PID=`ps -ww -ef| egrep "java.*dse-core" | grep -v /etc/dse- | grep $DSE_SERVER_FLAG | grep -v grep |awk '{print $2}' 2> /dev/null`;
+        fi
+        if [ "x$PID" = "x" ]; then
+            PID=`ps -edaf| egrep "java.*dse-core" | grep -v /etc/dse- | grep $DSE_SERVER_FLAG | grep -v grep |awk '{print $2}' 2> /dev/null`;
+        fi
+        if [ "x$PID" = "x" ]; then
+            PID=`ps aux|grep java| grep $DSE_SERVER_FLAG | grep -v grep | awk '{print $2}' 2> /dev/null`;
+        fi
+        if [ "x$PID" = "x" ]; then
+            echo "Unable to find DSE process, please use -p if you are sure it's running."
+            exit -1
+        else
+            # Found 1+ PID(s). Let's see if it's just 1 or more.
+            MAYBE_PIDS=`echo $PID | tr -d [:blank:]`
+
+            if [[ ! $MAYBE_PIDS = $PID ]]; then
+                echo "Found more than one DSE process, please use -p to specify which one you'd like to stop."
+                exit -1
+            fi
+
+            NODETOOL_BIN=nodetool
+            if [ -x "$CASSANDRA_BIN"/nodetool ]; then
+                NODETOOL_BIN="$CASSANDRA_BIN"/nodetool
+            else
+                if [ -x /usr/bin/nodetool ]; then
+                    NODETOOL_BIN=/usr/bin/nodetool
+                else
+                    if [ -x $DSE_HOME/bin/nodetool ]; then
+                        NODETOOL_BIN=$DSE_HOME/bin/nodetool
+                    else
+                        if [ -x $BIN/nodetool ]; then
+                            NODETOOL_BIN=$BIN/nodetool
+                        fi
+                    fi
+                fi
+            fi
+            # We check the call was successful here just to see if we got the
+            # right JMX info (creds, port, etc.)
+            if [ $? = 0 ]; then
+                $NODETOOL_BIN $CASSANDRA_JMX_CREDENTIALS disablebinary
+                $NODETOOL_BIN $CASSANDRA_JMX_CREDENTIALS drain
+
+                # try to check if PID is alive 36 times. This leads to a maximum
+                # of 3min wait in the worst case (36 * 5s = 180s)
+                local KILL_RETRIES=36;
+                local SERVICE_STOPPED=1;
+
+                kill $PID
+
+                for try in `seq $KILL_RETRIES`; do
+                    if [ ! -d /proc/$PID/ ]; then
+                        SERVICE_STOPPED=0;
+                        break;
+                    fi
+
+                    sleep 5
+                done
+            fi
+
+            if [ $SERVICE_STOPPED -ne 0 ]; then
+                echo "WARNING: couldn't kill process $PID after $KILL_RETRIES attempts. Please double check if it's still running."
+            fi
+
+            exit $?
+        fi
+        ;;
+    fs)
+        checkHome
+        shift
+        export DSEFS_SHELL_OPTS="$DSEFS_SHELL_OPTS -Dlogback.configurationFile=logback-dsefs-shell.xml"
+        export DSEFS_SHELL_OPTS="$DSEFS_SHELL_OPTS -Dcassandra.config.loader=com.datastax.bdp.config.DseConfigurationLoader"
+        export DSEFS_SHELL_OPTS="$DSEFS_SHELL_OPTS -Ddse.client.configuration.impl=com.datastax.bdp.transport.client.HadoopBasedClientConfiguration"
+        export DSEFS_SHELL_CLASSPATH="$DSE_CLASSPATH:$CASSANDRA_CLASSPATH:$HADOOP_CLASSPATH"
+        $JAVA_HOME/bin/java $DSEFS_SHELL_OPTS -cp $DSEFS_SHELL_CLASSPATH com.datastax.bdp.fs.shell.DseFsShellRunner "$@"
+        exit $?
+        ;;
+    hadoop)
+        checkHome
+        shift
+        set_credentials
+
+        HADOOP_CMD=$1
+        export HADOOP_OPTS="$HADOOP_OPTS -Djava.library.path=$JAVA_LIBRARY_PATH"
+        export HADOOP_OPTS="$HADOOP_OPTS $JAVA_AGENT"
+        export HADOOP_OPTS="$HADOOP_OPTS -Dlogback.configurationFile=logback-tools.xml"
+        export HADOOP_CLASSPATH="$HADOOP_CLASSPATH:$CASSANDRA_CLASSPATH"
+        export HADOOP_OPTS="$HADOOP_OPTS -Ddse.client.configuration.impl=com.datastax.bdp.transport.client.HadoopBasedClientConfiguration"
+
+        case "$HADOOP_CMD" in
+            fs)
+                "$HADOOP_BIN/hadoop" "$HADOOP_CMD" $HADOOP_CREDENTIALS "${@:2}"
+                exit $?
+            ;;
+            *)
+                echo "Hadoop functionality has been removed from DSE. Consider migrating your analytics to Spark instead."
+                exit 1
+            ;;
+        esac
+        ;;
+    spark)
+        checkHome
+        shift
+        set_credentials
+        run_with_framework "$SPARK_BIN"/spark-shell "$@"
+        exit $?
+        ;;
+    beeline)
+        checkHome
+        shift
+        run_with_framework "$SPARK_BIN"/beeline "$@"
+        exit $?
+        ;;
+    spark-jobserver)
+        checkHome
+        shift
+        case "$1" in
+            start)
+                shift
+                unset JMX_PORT
+                run_with_framework "$SPARK_JOBSERVER_HOME"/server_start.sh "$@"
+                exit $?
+                ;;
+            stop)
+                shift
+                unset JMX_PORT
+                run_with_framework "$SPARK_JOBSERVER_HOME"/server_stop.sh
+                exit $?
+                ;;
+            context-per-jvm-managed-start)
+                shift
+                unset JMX_PORT
+                run_with_framework "$SPARK_JOBSERVER_HOME"/manager_start.sh "$@"
+                exit $?
+                ;;
+            *)
+                echo "$0:"
+                echo "usage: spark-jobserver <command> [Spark Submit Options]"
+                echo ""
+                echo "Available commands:"
+                echo "  start                             Start Spark Jobserver"
+                echo "  stop                              Stops Spark Jobserver"
+                # context-per-jvm purposely omitted, it's not for public access, it's meant to be used
+                # by Spark Jobserver context-per-jvm functionality
+                ;;
+        esac
+        ;;
+    spark-history-server)
+        checkHome
+        shift
+        case "$1" in
+            start)
+                shift
+                run_with_framework "$SPARK_SBIN"/start-history-server.sh "$@"
+                exit $?
+                ;;
+            stop)
+                shift
+                run_with_framework "$SPARK_SBIN"/stop-history-server.sh "$@"
+                exit $?
+                ;;
+            *)
+                echo "$0:"
+                echo "usage: spark-history-server <command> [Spark Submit Options]"
+                echo ""
+                echo "Available commands:"
+                echo "  start                             Start Spark History Server"
+                echo "  stop                              Stops Spark History Server"
+                ;;
+        esac
+        ;;
+    spark-class)
+        checkHome
+        shift
+        set_credentials
+        run_with_framework "$SPARK_BIN"/spark-class "$@"
+        exit $?
+        ;;
+    spark-submit)
+        checkHome
+        shift
+        set_credentials
+        run_with_framework "$SPARK_BIN"/spark-submit "$@"
+        exit $?
+        ;;
+    spark-sql)
+        checkHome
+        shift
+        set_credentials
+        run_with_framework "$SPARK_BIN"/spark-sql "$@"
+        exit $?
+        ;;
+    spark-classpath)
+        shift
+        run_with_framework classpath
+        exit $?
+        ;;
+    spark-sql-thriftserver)
+        checkHome
+        shift
+        spark_sql_thrift_server "$@"
+        ;;
+    alwayson_sql)
+        shift
+        alwayson_sql "$@"
+        ;;
+    pyspark)
+        checkHome
+        shift
+        set_credentials
+        run_with_framework "$SPARK_BIN"/pyspark "$@"
+        exit $?
+        ;;
+    sparkR)
+        checkHome
+        shift
+        set_credentials
+        run_with_framework "$SPARK_BIN"/sparkR "$@"
+        exit $?
+        ;;
+    exec)
+        checkHome
+        # Add PYSPARK libs to PYTHON_PATH
+        for FILE in $SPARK_PYTHON_LIB_DIR/*.zip; do
+            export PYTHONPATH=$FILE:$PYTHONPATH
+        done
+        echo $JUPYTER_PATH
+        shift
+        set_credentials
+        unset CLASSPATH
+        exec "$@"
+        ;;
+    nodetool)
+        shift
+        set_credentials
+        # Nodetool needs the full set of DSE libs on the classpath
+        # as since 1.2.11 the configured snitch is loaded by a call
+        # to DatabaseDescriptor.init in describe_ring
+        CLASSPATH="$DSE_CLASSPATH":"$HADOOP_CLASSPATH":"$CASSANDRA_CLASSPATH"
+        if [ -x "$CASSANDRA_BIN"/nodetool ]; then
+            exec "$CASSANDRA_BIN"/nodetool $CASSANDRA_JMX_CREDENTIALS "$@"
+        elif [ -x /usr/bin/nodetool ]; then
+            exec /usr/bin/nodetool $CASSANDRA_JMX_CREDENTIALS "$@"
+        else
+            echo "Unable to locale nodetool in $CASSANDRA_BIN or /usr/bin"
+            exit 2
+        fi
+        exit $?
+        ;;
+    -v)
+        "$JAVA" -cp "$CLASSPATH" -Dlogback.configurationFile=logback-tools.xml com.datastax.bdp.tools.GetVersion
+        exit $?
+        ;;
+    client-tool)
+        checkHome
+        shift
+        set_credentials
+        "$BIN"/dse-client-tool "$@"
+        exit $?
+        ;;
+    gremlin-console)
+        checkHome
+        shift
+        set_credentials
+        if [ -z "$GREMLIN_WORKING_DIR" ]; then
+          [ -d "$DSE_CONF/graph/gremlin-console" ] && GREMLIN_WORKING_DIR="$DSE_CONF/graph/gremlin-console" || GREMLIN_WORKING_DIR="$GRAPH_HOME/gremlin-console"
+        fi
+        USER_DIR=`pwd`
+        pushd "$GREMLIN_WORKING_DIR" > /dev/null
+        if [ -n "$DSE_LOGIN_CONFIG" ]; then
+            JAVA_OPTIONS="${JAVA_OPTIONS} -Djava.security.auth.login.config=${DSE_LOGIN_CONFIG}"
+        fi
+        JAVA_OPTIONS="${JAVA_OPTIONS}" USER_DIR=${USER_DIR} "$GRAPH_HOME/gremlin-console/bin/gremlin.sh" "$@"
+        popd > /dev/null
+        ;;
+    shark)
+        echo "Shark functionality has been removed from DSE. Consider migrating your queries to SparkSQL instead."
+        exit 1
+        ;;
+    esri-import)
+        echo "ESRI import functionality has been removed from DSE."
+        exit 1
+        ;;
+    hive)
+        echo "Hive functionality has been removed from DSE. Consider migrating your queries to SparkSQL instead."
+        exit 1
+        ;;
+    mahout)
+        echo "Mahout functionality has been removed from DSE. Consider migrating to Spark ML instead."
+        exit 1
+        ;;
+    pig)
+        echo "Pig functionality has been removed from DSE. Consider migrating your queries to Spark and/or SparkSQL instead."
+        exit 1
+        ;;
+    sqoop)
+        echo "Sqoop functionality has been removed from DSE."
+        exit 1
+        ;;
+    spark-sql-metastore-migrate)
+        echo "spark-sql-metastore-migrate is deprecated. The new command is dse client-tool spark metastore-migrate."
+        exit 1
+        ;;
+    *)
+        ######################################## DSE Plugin/Extension Integration ####################################################################
+        ########################### If any command in the current directory with name dse-ext-<$2> this command is executed ############################
+        exist_extension_script $1
+        if [ "$?" -eq 0 ]; then
+            run_extension $@
+            exit "$?"
+        else
+            printUsage
+        fi
+esac
+}
+
+parseArgs "$@"
+
+# vi:ai sw=4 ts=4 tw=0 et

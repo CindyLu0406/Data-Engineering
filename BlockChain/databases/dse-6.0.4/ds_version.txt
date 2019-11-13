@@ -1,0 +1,4 @@
+DSVersion=6.0.4
+DSMajorVersion=6
+DSMinorVersion=0
+DSPatchVersion=4

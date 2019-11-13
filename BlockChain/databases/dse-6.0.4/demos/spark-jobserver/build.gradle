@@ -1,0 +1,50 @@
+apply plugin: 'scala'
+
+group = 'com.datastax'
+ext.mainClassName = 'com.datastax.DemoSparkJob'
+
+
+jar {
+    baseName = 'DemoSparkJob'
+
+    manifest.attributes("Main-Class": mainClassName)
+    from {
+        (configurations.runtime - configurations.provided).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
+configurations {
+    provided
+    compile.extendsFrom provided
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+    maven {
+        url = 'https://repo.datastax.com/public-repos'
+    }
+    // Following repo is added only for testing unreleased versions. Client side jars (api, extras) should be
+    // publicly available in repo above.
+    maven {
+        url = 'http://repo.datastax.com/datastax-releases-local'
+    }
+    maven {
+        url = 'https://dl.bintray.com/spark-jobserver/maven'
+    }
+}
+
+dependencies {
+    if (parent) {
+        provided  project(':dse-spark')
+    } else {
+        provided "com.datastax.dse:dse-spark-dependencies:${dseVersion}"
+    }
+    provided "spark.jobserver:job-server-api_${scalaLibVersion}:${sparkJobServerApi}"
+    provided "spark.jobserver:job-server-extras_${scalaLibVersion}:${sparkJobServerApi}"
+}
+
+clean.delete 'target'

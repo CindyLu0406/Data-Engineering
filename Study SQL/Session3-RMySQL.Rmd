@@ -1,0 +1,118 @@
+/***********************************************
+** DATA ENGINEERING PLATFORMS (MSCA 31012)
+** File: RMySQL
+** Desc: Connecting R to MySQL database
+** Auth: Shreenidhi Bharadwaj
+** Date: 02/06/2019
+** ALL RIGHTS RESERVED | DO NOT DISTRIBUTE
+************************************************/
+
+We can connect to MySQL using the RMySQL package.
+```{r}
+install.packages("RMySQL");
+install.packages("ggplot2");
+```
+
+Initialize libraries
+```{r, echo=FALSE}
+library(RMySQL);
+library(ggplot2);
+library(DBI);
+```
+
+Set up the connection
+```{r, echo=FALSE}
+connection = dbConnect(MySQL(),user="root", password="rootroot", 
+                       dbname="classicmodels", host="localhost");
+```
+
+Now get some data
+```{r}
+myQuery <- "SELECT COUNT(*) FROM offices;"
+dbGetQuery(connection, myQuery)
+```
+
+
+Find all the orders that are inprocess or have been shipped 
+```{r}
+myQuery <- 
+"SELECT 
+    orderNumber, orderDate, requiredDate, customerNumber, status
+FROM
+    orders
+WHERE
+    (status = 'In Process'
+        OR status = 'shipped');"
+dbGetQuery(connection, myQuery);
+```
+
+# arithmetic mean of the buyPrice for all products
+```{r}
+myQuery <- 
+"SELECT 
+    VARIANCE(quantityOrdered) AS varQuantityOrdered
+FROM
+    orderdetails;"
+dbGetQuery(connection, myQuery);
+```
+
+# number of orders and status of orders
+```{r}
+myQuery <- 
+"SELECT 
+    customerNumber, 
+    status, 
+    COUNT(*) AS numberOfOrders
+FROM
+    orders
+GROUP BY customerNumber , status
+ORDER BY numberOfOrders DESC;"
+
+myData <- dbGetQuery(connection, myQuery);
+ggplot(myData, aes(status, numberOfOrders)) + geom_bar(stat="identity")
+
+```
+
+
+Close active DB Connections
+
+```{r}
+dbGetQuery(connection, "show processlist")
+
+dbDisconnectAll <- function()
+{
+  ile <- length(dbListConnections(MySQL())  )
+  lapply( dbListConnections(MySQL()), function(x) dbDisconnect(x) )
+  cat(sprintf("%s connection(s) closed.\n", ile))
+}
+
+dbDisconnectAll()
+
+```
+
+```{r}
+dbconnect = dbConnect(MySQL(),user="root", password="rootroot", 
+                dbname="classicmodels", host="localhost")
+```
+
+```{sql, connection=dbconnect}
+SELECT count(*) FROM customers;
+```
+```{sql, connection=dbconnect}
+# List all products that matches a pattern ( string )
+SELECT
+    productCode, 
+    SUM(quantityOrdered) as totalQuantity, 
+    SUM(quantityOrdered*priceEach) as totalPrice
+FROM
+    orderdetails
+WHERE productCode like 'S18%'
+GROUP BY productCode 
+/* ASC */
+HAVING totalPrice > 10000
+ORDER BY totalPrice DESC
+LIMIT 5;
+```
+
+# Additional References
+# https://programminghistorian.org/en/lessons/getting-started-with-mysql-using-r

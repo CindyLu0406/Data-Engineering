@@ -1,0 +1,83 @@
+Order Value By Country:
+----------------------
+Map based on Longitude (generated) and Latitude (generated).  Color shows sum of OrderValue.  The marks are labeled by Country and % of Total OrderValue.  Details are shown for Country. The data is filtered on Product Line and Action (Product Line). The Product Line filter keeps 7 of 7 members. The Action (Product Line) filter keeps 7 members.
+
+Steps:
+- Create Calculated Field via Analysis >  create calculated field ( priceEach & Quantity Ordered ) anc call it orderValue
+- Country on rows & orderValue into Color Marks Card
+- Click on the showMe card and choose filled map option.
+- Country to the label card
+- orderValue to the label Card as well and click on the orderValue label to Navigate to Quick  Table calculation and select percent of total
+- Drag the ProductLine from dimproducts to Filters ( Use All  option )
+- Click on the ProductLine and select show filter
+- Rename Chart title to Percentage of orderValue by Country and Product Line
+- Rename the SheetName ( tab ) to Order Value By Country
+
+
+
+Order Value By Vendor:
+---------------------
+% of Total OrderValue broken down by Product Line and Product Vendor. The data is filtered on Action (Product Line), which keeps 7 members. The view is filtered on Product Line, which keeps 7 of 7 members.
+
+Steps:
+- ProductLine and ProductVendor from dimProducts to Row
+- orderValue to Text Field on the Marks Card
+- click on the orderValue label to get to Quick table calculation > percent of total
+- click on product line Row > right click to get to format
+- Add productline to the filter
+- Rename the SheetName ( tab ) to Order Value By Vendor
+
+
+Product Line Order Trend :
+------------------------
+Product Line Order Trend from 2014 - 2016 - Product Line, Order Date Year and % of Total OrderValue.  Color shows details about Product Line.  Size shows sum of OrderValue.  The marks are labeled by Product Line, Order Date Year and % of Total OrderValue.
+
+Steps:
+- Product Line in Columns and orderValue in Rows
+- showMe card > Bubble chart
+- orderDate to the label card
+- OrderValue to Label Marks > quick table calculation > percent of total
+- ProductLine to filters
+- Rename the SheetName ( tab ) to Order Line Product Trend
+
+Product Line Profits:
+---------------------
+The trends of OrderValue and Profit Per product for Order Date Year broken down by Product Line.  Color shows details about OrderValue and Profit Per product. The data is filtered on Action (Product Line), which keeps 7 members. The view is filtered on Product Line, which keeps 7 of 7 members.
+
+Steps:
+- Create Calculated field called Profit . ( MSRP - Buy Price )
+- Profits and orderValue in Rows & Product Line to Column
+- Add orderDate to Column and choose on year to spread out
+- Move ProductLine to the row and click on dual chart ( profits as line chart and orderValues as Bar Chart)
+- Add ProductLine filter to the chart
+- Rename the SheetName ( tab ) to Product Line Profits
+
+
+Filter Report (Importing External Images):
+-------------------------
+The view is broken down by Product Line.  Shape shows details about Product Line. The view is filtered on Product Line, which keeps 7 of 7 members.
+
+Steps:
+- To add customized icons, place the classicModelShapes directory into the Documents > My Tabelau repostory > shapes folder ( 7 images )
+- ProductLine to row and default chart type ( Marks box ) to Shape
+- Add ProductLine to Shape within the Marks Card.( Click on reload shapes in case you don't see the classicModels folder.
+- match each image with each productLine
+- Click on size and move the slider to the right to increase the image size.
+- Add ProductLine to filter.
+- Rename the SheetName ( tab ) to Filter
+
+
+Dashboard:
+---------
+- Click on the new dashboard icon at the bottom right.
+- Sheets are seen on the left. Drag the "Filter" sheet to the drop sheets here zone.
+- Click on the dropdown on the top right of the chart and choose floating ( allows to reroder/float and reposition & resize the chart)
+- filters & Legends of the chart will get added as well into the dropzone. Let us remove them so that the Dashboard looks clean ( Any changes made eventually in individual reports will refect directly in the dashboard.)
+- Add the Product Line Profits chart to the dropzone, make if floating. Feel free to remove the header of the vertical axis by right clicking on the chart.
+- Follow the steps for the rest of the charts
+- Once all charts are in the drop zone, click on Analysis > filters > Action ( productLine). Reposition the filter to the top left corner. Click on the window dropdown on the top right and select "Single Value(dropdown)"
+- Change the title of the filter to "Select Product Line " by double clicking on the Action ( ProductLine) Text
+- Select Dashboard > Actions > Add Action > Filter. Name the action as Product Line. On the Run Action on: ( right menu) choose "Select" > click ok
+- Click on the select product Line filter dropdown and select Apply to worksheets > All Using this datasource
+- Now using filters we can see that based on user selections the other charts only render data based on the selection.
+

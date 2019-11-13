@@ -1,0 +1,2 @@
+SHARED_SEQUENTIAL
+LOAD|protocol=CQL|loader-class=GEO|input-file=allCountries.txt|limit=0|config-yaml={ "synthesize_primary_key":false, "starting_primary_key":0, "synthesize_random_key":true }

@@ -1,0 +1,840 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          dse
+# Required-Start:    $remote_fs $network $named $time
+# Required-Stop:     $remote_fs $network $named $time
+# Should-Start:      ntp mdadm
+# Should-Stop:       ntp mdadm
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: DataStax Enterprise
+# Description:       The DataStax Enterprise server.
+### END INIT INFO
+
+###
+# These are replaced when adding a multi-instance node
+DESC="DSE daemon"
+NAME="dse"
+CASSANDRA_USER="cassandra"
+###
+
+SERVER_CONFIG="/etc/dse/serverconfig"
+
+NODE_CONFIG="/etc/dse"
+
+if [ -r "$SERVER_CONFIG/$NAME" ]; then
+    . "$SERVER_CONFIG/$NAME"
+fi
+
+PIDFILE="/var/run/$NAME/$NAME.pid"
+SCRIPTNAME="/etc/init.d/$NAME"
+
+if [ "x$CASSANDRA_CONF" = "x" ]; then
+    export CASSANDRA_CONF="$NODE_CONFIG/cassandra"
+fi
+
+if [ "x$DSE_ENV" = "x" ]; then
+    DSE_ENV="$NODE_CONFIG/dse-env.sh"
+fi
+
+if [ "x$CASSANDRA_ENV_FILE" = "x" ]; then
+    export CASSANDRA_ENV_FILE="$CASSANDRA_CONF/cassandra-env.sh"
+fi
+
+if [ "x$SPARK_CONF_DIR" = "x" ]; then
+    export SPARK_CONF_DIR="$NODE_CONFIG/spark"
+fi
+
+if [ "x$GRAPH_CONF_DIR" = "x" ]; then
+    export GRAPH_CONF_DIR=$NODE_CONFIG/graph
+fi
+
+if [ "x$SPARK_ENV_FILE" = "x" ]; then
+    export SPARK_ENV_FILE="$SPARK_CONF_DIR/spark-env.sh"
+fi
+
+DSE_DEFAULT="/etc/default/$NAME"
+DSE_HOME="/usr/share/dse"
+if [ -z $WAIT_FOR_START ]; then
+    WAIT_FOR_START="3"
+    WAIT_FOR_START_SLEEP="5"
+fi
+if [ -z $WAIT_FOR_STOP ]; then
+    WAIT_FOR_STOP=60
+fi
+START_STOP_DAEMON="0"
+VERBOSE="no"
+
+# ULIMITS - minimum recommended values, use values according to ulimit, the meassure units may change.
+# http://docs.datastax.com/en/landing_page/doc/landing_page/recommendedSettingsLinux.html?scroll=recommendedSettingsLinux__user-resource-limits
+# NOTE 1: Some systems have a limited sh built-in ulimit, make sure that new ulimits are supported
+# NOTE 2: The variables names are using the nomenclature used by the limits.d files
+readonly ULIMITS="memlock nofile nproc as"
+readonly ULIMIT_min_memlock="unlimited"
+readonly ULIMIT_min_nofile="100000"
+readonly ULIMIT_min_nproc="32768"
+readonly ULIMIT_min_as="unlimited"
+
+export OUTPUT_FILE
+
+# Where to find stuff
+
+# Make sure we don't use just sysctl for managing the server
+SYSTEMCTL_SKIP_REDIRECT=1
+
+# Internal variables
+RETVAL=0
+NEED_NEWLINE=0
+
+# What components to load
+SOLR_ENABLED=0
+SPARK_ENABLED=0
+GRAPH_ENABLED=0
+
+# The first existing directory is used for JAVA_HOME if needed.
+JVM_SEARCH_DIRS="/usr/lib/jvm/default-java"
+
+# Load the functions provided by the os
+if [ -e /etc/debian_version ]; then
+    # Load the VERBOSE setting and other rcS variables
+    . /lib/init/vars.sh
+    # Define LSB log_* functions.
+    # Depend on lsb-base (>= 3.0-6) to ensure that this file is present.
+    . /lib/lsb/init-functions
+elif [ -e /etc/init.d/functions ] ; then
+    . /etc/init.d/functions
+fi
+
+# Do we have lsb support?
+type log_daemon_msg >/dev/null 2>&1
+DONT_HAVE_LSB="$?"
+
+#
+# Function that prints a "daemon" message or log_daemon_msg if possible
+log_message_daemon() {
+  if [ "$DONT_HAVE_LSB" -eq 0 ]; then
+      log_daemon_msg "$1" "$2"
+  else
+      echo -n $1 : $2
+  fi
+  NEED_NEWLINE=1
+}
+
+#
+# Function that prints a "success" message or log_success_msg if possible
+log_message_success() {
+  if [ "$DONT_HAVE_LSB" -eq 0 ]; then
+      log_success_msg "$@"
+  else
+      echo "$@"
+  fi
+}
+
+#
+# Function that prints a "failure" message or log_failure_msg if possible
+log_message_failure() {
+  if [ "$DONT_HAVE_LSB" -eq 0 ]; then
+      log_failure_msg "$@"
+  else
+      echo "$@"
+  fi
+}
+
+#
+# Function that prints a regular message or log_daemon_msg if possible
+log_message() {
+  if [ "$NEED_NEWLINE" -eq 1 ]; then
+      echo ""
+      NEED_NEWLINE=0
+  fi
+  if [ "$DONT_HAVE_LSB" -eq 0 ]; then
+      echo "$@"
+  else
+      echo "$@"
+  fi
+}
+
+#
+# Function that sets an error code and wraps up the line
+log_message_end() {
+  if [ "$DONT_HAVE_LSB" -eq 0 ]; then
+      log_end_msg "$@"
+  else
+      if [ "$NEED_NEWLINE" -eq 1 ]; then
+          if [ "$1" -eq 0 ]; then
+              echo " OK"
+          else
+              echo " Failed"
+          fi
+          NEED_NEWLINE=0
+      fi
+      RETVAL="$1"
+  fi
+}
+
+#
+# Function that prints a debug message
+log_message_debug() {
+  if [ "$VERBOSE" != "no" ]; then
+      if [ "$NEED_NEWLINE" -eq 1 ]; then
+          echo ""
+          NEED_NEWLINE=0
+      fi
+      echo "$@"
+  fi
+}
+
+# Read configuration variable file if it is present
+if [ -r "$DSE_DEFAULT" ]; then
+    hadoopEnableExists=$(grep -c "HADOOP_ENABLED=1" $DSE_DEFAULT)
+    if [ $hadoopEnableExists -gt 0 ]; then
+        echo "Hadoop functionality has been removed from DSE.
+Please try again without the HADOOP_ENABLED set in /etc/default/dse."
+        exit 1
+    fi
+    log_message_debug "Loading $DSE_DEFAULT"
+    . "$DSE_DEFAULT"
+fi
+
+# Are we properly installed?
+ls "$DSE_HOME"/dse*.jar > /dev/null 2> /dev/null
+FOUND_FILE_1=$?
+ls "$DSE_HOME"/lib/dse*.jar > /dev/null 2> /dev/null
+FOUND_FILE_2=$?
+if [ ! -e "$DSE_HOME"/dse.jar -a ! -e "$DSE_HOME"/lib/dse.jar -a ! $FOUND_FILE_1 -eq 0 -a ! $FOUND_FILE_2 -eq 0 ]; then
+    log_message_failure "$NAME can not find dse*.jar in $DSE_HOME or $DSE_HOME/lib. Please ensure that $DSE_DEFAULT exists and sets DSE_HOME."
+    exit 5
+fi
+PIDDIR=`dirname $PIDFILE`
+if [ ! -d "$PIDDIR" ]; then
+    mkdir -p "$PIDDIR"
+    if [ ! -d "$PIDDIR" ]; then
+        log_message_failure "$PIDDIR can not be found. Please create and make writable for user: $CASSANDRA_USER"
+        exit 5
+    fi
+fi
+owner=`stat -c %U "$PIDDIR"`
+if [ "$owner" != "$CASSANDRA_USER" ]; then
+    chown -R "$CASSANDRA_USER" "$PIDDIR"
+    owner=`stat -c %U "$PIDDIR"`
+    if [ "$owner" != "$CASSANDRA_USER" ]; then
+        log_message_failure "$PIDDIR is not owned by user: $CASSANDRA_USER. Please change ownership."
+        exit 5
+    fi
+fi
+
+
+# Read DSE environment file.
+if [ -e "$DSE_ENV" ]; then
+    log_message_debug "Loading $DSE_ENV"
+    . "$DSE_ENV"
+elif [ -e "$DSE_HOME"/bin/dse-env.sh ]; then
+    log_message_debug "Loading $DSE_HOME/bin/dse-env.sh"
+    . "$DSE_HOME"/bin/dse-env.sh
+else
+    log_message_failure "$NAME can not find dse-env.sh in /etc/dse or $DSE_HOME/bin"
+    exit 6
+fi
+
+if [ -x /sbin/start-stop-daemon ]; then
+    # If we have start_stop_daemon available to us, use it.
+    log_message_debug "Found start-stop-daemon"
+    START_STOP_DAEMON=1
+else
+    log_message_debug "No start-stop-daemon"
+fi
+
+# If JAVA_HOME has not been set, try to determine it.
+if [ -z "$JAVA_HOME" ]; then
+    log_message_debug "No JAVA_HOME... trying to locate"
+    if [ -n "`which java`" ]; then
+        # If java is in PATH, use a JAVA_HOME that corresponds to that. This is
+        # both consistent with how the upstream startup script works, and how
+        # Debian works (read: the use of alternatives to set a system JVM).
+        java=`which java`
+        # Dereference symlink(s)
+        while true; do
+            if [ -h "$java" ]; then
+                java=`readlink "$java"`
+                continue
+            fi
+            break
+        done
+        JAVA_HOME="`dirname $java`/../"
+    else
+        # No JAVA_HOME set and no java found in PATH, search for a JVM.
+        for jdir in $JVM_SEARCH_DIRS; do
+            if [ -x "$jdir/bin/java" ]; then
+                JAVA_HOME="$jdir"
+                break
+            fi
+        done
+    fi
+fi
+JAVA="$JAVA_HOME/bin/java"
+log_message_debug "JAVA_HOME: $JAVA_HOME"
+
+
+# Read Cassandra environment file.
+if [ -e "$CASSANDRA_ENV_FILE" ]; then
+    log_message_debug "Loading $CASSANDRA_ENV_FILE"
+    . "$CASSANDRA_ENV_FILE"
+elif [ -e "$DSE_HOME"/resources/cassandra/conf/cassandra-env.sh ]; then
+    log_message_debug "Loading $DSE_HOME/resources/cassandra/conf/cassandra-env.sh"
+    . "$DSE_HOME"/resources/cassandra/conf/cassandra-env.sh
+else
+    log_message_failure "$NAME can not find cassandra-env.sh in /etc/dse/cassandra or $DSE_HOME/resources/cassandra/conf/cassandra-env.sh"
+    exit 6
+fi
+
+# Read Spark environment file.
+if [ -e "$SPARK_ENV_FILE" ]; then
+    log_message_debug "Loading $SPARK_ENV_FILE"
+    . "$SPARK_ENV_FILE"
+elif [ -e "$DSE_HOME"/resources/spark/conf/spark-env.sh ]; then
+    log_message_debug "Loading $DSE_HOME/resources/spark/conf/spark-env.sh"
+    . "$DSE_HOME"/resources/spark/conf/spark-env.sh
+else
+    log_message_failure "$NAME can not find spark-env.sh in /etc/dse/spark or $DSE_HOME/resources/spark/conf/spark-env.sh"
+    exit 6
+fi
+
+# The env files should have set up JVM_OPTS for us. If not we can not
+# properly start
+if [ -z "$JVM_OPTS" ]; then
+    log_message_failure "Initialization failed; \$JVM_OPTS not set!"
+    exit 1
+fi
+
+#
+# Check if the limits of a provided PID are configured
+#
+check_limits()
+{
+    local pid="${1}"
+
+    if [ -d "/proc/$pid" ]; then
+        log_message_debug "Checking limits for pid '$pid' ..."
+    else
+        log_message_debug "Checking limits failed. Invalid '$pid'."
+        return 1
+    fi
+
+    # The $ULIMITS variable is set in the begining of this script,
+    #  as well the minimum limits.
+    local ret=0
+    local limit
+    for limit in $ULIMITS; do
+        # This script uses the limits.d nomenclature in the variable names.
+        # Make the match between the names and /prod/pid/limits.
+        local proc_txt
+        case "$limit" in
+            "core")         proc_txt="Max core file size";;  # ulimit -c
+            "data")         proc_txt="Max data size";;       # ulimit -d
+            "fsize")        proc_txt="Max file size";;       # ulimit -f
+            "memlock")      proc_txt="Max locked memory";;   # ulimit -l
+            "nofile")       proc_txt="Max open files";;      # ulimit -n
+            "rss")          proc_txt="Max resident set";;    # ulimit -m
+            "stack")        proc_txt="Max stack size";;      # ulimit -s
+            "cpu")          proc_txt="Max cpu time";;        # ulimit -t (in secs)
+            "nproc")        proc_txt="Max processes";;       # ulimit -p (dash); ulimit -u (bash)
+            "as")           proc_txt="Max address space";;   # ulimit -v
+            "locks")        proc_txt="Max file locks";;      # ulimit -x
+            "sigpending")   proc_txt="Max pending signals";; # ulimit -i
+            "msgqueue")     proc_txt="Max msgqueue size";;   # ulimit -q
+            "nice")         proc_txt="Max nice priority";;   # ulimit -e
+            "rtprio")       proc_txt="Max realtime priority";;# ulimit -r
+            "maxlogins"|"maxsyslogins"|"priority")
+                log_message_debug "The check of the linux limit '$limit' is not supported"
+                continue;;
+            *)
+                log_message_debug "The linux limit '$limit' is not recognized"
+                continue;;
+        esac
+
+        # skip if limit has no text to validate
+        [ "$proc_txt" = "" ] && continue
+
+        # getting values
+        eval local ulimit_minimum_value="\$ULIMIT_min_$limit"
+        local proc_gotten_value="$(
+        cat /proc/$pid/limits |
+        tr -s ' ' |
+        sed -n "s/^$proc_txt \(.*\)/\1/gp" |
+        cut -d ' ' -f 1 )"
+
+        if [ -z "$ulimit_minimum_value"  -o  -z "$proc_gotten_value" ]; then
+            log_message_debug "Fail getting values of the linux limit '$limit'"
+            continue
+        fi
+
+        # Unit conversions
+        local ulimit_gotten_value="$proc_gotten_value"
+
+        local unit="$(
+        cat /proc/$pid/limits |
+        tr -s ' ' |
+        sed -n "s/^$proc_txt \(.*\)/\1/gp" |
+        cut -d ' ' -f 3 )"
+        case "$unit" in
+            "bytes") # ulimit use KB
+                [ "$ulimit_gotten_value" != "unlimited"  ] && ulimit_gotten_value="$(( $proc_gotten_value / 1024 ))"
+                ;;
+            "seconds"|"processes"|"files"|"locks"|"signals"|""|"us")
+                # use as it is
+                ;;
+            *)
+                log_message_debug "The linux limit '$limit' has unsupported unit type"
+                continue;;
+        esac
+
+        # test the value
+        local warn="false"
+        if [ "$ulimit_gotten_value" = "unlimited" ]; then
+            # could not get better ;)
+            continue
+        elif [ "$ulimit_minimum_value" = "unlimited" ]; then
+            # if the recommended is unlimited, the previous 'if' would be satisfied
+            warn="true"
+        elif [ "$ulimit_gotten_value" -lt "$ulimit_minimum_value" ]; then
+            # if the set limit is smaller, warn
+            warn="true"
+        fi
+
+        # print the message
+        local msg="The linux limit '$limit' is '${ulimit_gotten_value}'. The minimum recommended is '${ulimit_minimum_value}'."
+        if [ "$warn" = "true" ]; then
+            log_message "$msg Check your configuration."
+            ret=2
+        else
+            log_message_debug "$msg"
+        fi
+
+    done
+
+    # If some limit is wrong show the documentation
+    if [ "$ret" = "2" ]; then
+        log_message "Check our documentation for more details. http://docs.datastax.com/en/landing_page/doc/landing_page/recommendedSettingsLinux.html?scroll=recommendedSettingsLinux__user-resource-limits"
+    fi
+
+    # 0 - limits are ok
+    # 1 - invalid pid
+    # 2 - some limit is NOK
+    return $ret
+}
+
+
+#
+# Set ulimits in the current process so all sub-sequente
+#  commands will inherite the limits, the only exception
+#  is for commands that uses PAM, like su and sudo. If
+#  PAM is configured to use the pam_limits.so module, the
+#  ulimits are overriden.
+# The ulimits are copied from cassandra user, if the
+#  ulimits are below of the recommended, it will set the
+#  minimum ulimits in the current process.
+# To raise the minimum values just configure PAM to use
+#  pam_limits.so, and set the ulimits. This function
+#  will copy these values for commands that not uses PAM.
+#  see:
+#  http://docs.datastax.com/en/landing_page/doc/landing_p
+#  age/recommendedSettingsLinux.html?scroll=recommendedSe
+#  ttingsLinux__user-resource-limits
+#
+set_ulimits(){
+
+    # The $ULIMITS variable is set in the begining of this script
+    # The limits can be raised, check the comments in the begining
+    #  of this script.
+    for limit in $ULIMITS; do
+        local cmd
+        # This script uses the limits.d nomenclature in the variable names.
+        # Make the match between the names and the ulimit commands
+        case "$limit" in
+            "core")         cmd="-c";;
+            "data")         cmd="-d";;
+            "fsize")        cmd="-f";;
+            "memlock")      cmd="-l";;
+            "nofile")       cmd="-n";;
+            "rss")          cmd="-m";;
+            "stack")        cmd="-s";;
+            "cpu")          cmd="-t";;
+            "nproc")        cmd="-p";; # -u in bash
+            "as")           cmd="-v";;
+            "locks")        cmd="-x";;
+            "sigpending")   cmd="-i";;
+            "msgqueue")     cmd="-q";;
+            "nice")         cmd="-e";;
+            "rtprio")       cmd="-r";;
+            *)
+                log_message_debug "The linux limit '$limit' is not recognized"
+                continue;;
+        esac
+
+        ulimit "$cmd" >>/dev/null 2>&1
+        if [ "$?" != "0" ]; then
+          log_message_debug "The \`ulimit $cmd\` ($limit) is not supported in the current shell, unable to set '$limit'  limit"
+          continue
+        fi
+
+        eval local min_value="\$ULIMIT_min_$limit"
+        local best_value="$min_value"
+
+        # get the best value
+        if [ "$best_value" != "unlimited" ]; then
+          local user_value="$(su "$CASSANDRA_USER" -s /bin/sh -c "ulimit $cmd -S")"
+
+          if [ "x$user_value" = "x" ]; then
+            log_message_debug "Fail getting the limit '$limit' configured for cassandra user"
+          else
+            if [ "$user_value" = "unlimited" ]; then
+              best_value="$user_value"
+            elif [ "$best_value" -lt "$user_value" ]; then
+              best_value="$user_value"
+            fi
+          fi
+        fi
+
+        ulimit "$cmd" "$best_value" 2>&1
+    done
+}
+
+#
+# Function that returns the applications classpath
+classpath()
+{
+    cp="$EXTRA_CLASSPATH:$CLASSPATH"
+
+    # Include the conf directory for purposes of logback.xml, and
+    # commons-daemon in support of the daemonization class.
+    printf "$cp:$CASSANDRA_CONF:/usr/share/java/commons-daemon.jar"
+}
+
+#
+# Function that checks user rights and also whether we can run the server
+check() {
+    # Check that we're a privileged user
+    if [ "`id -u`" -ne 0 ]; then
+        log_message_failure "Need to run this as root"
+        exit 4
+    fi
+
+    # Check if dse is executable
+    if [ ! -x /usr/bin/dse -a ! -x "$DSE_HOME"/bin/dse ]; then
+        log_message_failure "/usr/bin/dse and $DSE_HOME/bin/dse are not executable"
+        exit 5
+    fi
+
+    touch "$OUTPUT_FILE"
+    if [ "$?" != 0 ]; then
+        log_message_failure "Unable to write to $OUTPUT_FILE. Please ensure it's set properly in $DSE_DEFAULT."
+        exit 5
+    fi
+    chown "$CASSANDRA_USER" "$OUTPUT_FILE"
+    touch "$OUTPUT_FILE"
+    if [ "$?" != 0 ]; then
+        log_message_failure "$CASSANDRA_USER is unable to write to $OUTPUT_FILE. Please ensure it's set properly in $DSE_DEFAULT."
+        exit 5
+    fi
+}
+
+#
+# Function that returns 0 if process is running, or nonzero if not.
+#
+# The nonzero value is 3 if the process is simply not running, and 1 if the
+# process is not running but the pidfile exists (to match the exit codes for
+# the "status" command; see LSB core spec 3.1, section 20.2)
+#
+is_running()
+{
+    is_running_silent
+    RETVAL="$?"
+    case "$RETVAL" in
+      0) log_message_success "$NAME is running";;
+      *) log_message_failure "$NAME is not running";;
+    esac
+    return "$RETVAL"
+}
+
+is_running_silent()
+{
+    if [ "$START_STOP_DAEMON" -eq 1 ]; then
+        log_message_debug "Checking directly for status"
+        if [ -f "$PIDFILE" ]; then
+            pid=`cat "$PIDFILE"`
+            grep -Eq "$PIDFILE" "/proc/$pid/cmdline" 2>/dev/null && return 0
+            return 1
+        fi
+        return 3
+    else
+        log_message_debug "Using system to check for status"
+        status -p "$PIDFILE" "$NAME" > /dev/null 2>&1
+    fi
+}
+
+is_running_silent_pid()
+{
+    log_message_debug "Checking directly for status"
+    grep -Eq "$PIDFILE" "/proc/$1/cmdline" 2>/dev/null && return 0
+    return 1
+}
+
+#
+# Function that starts the daemon/service
+#
+do_start()
+{
+    # Return
+    #   0 if daemon has been started
+    #   1 if daemon could not be started
+    is_running_silent
+    RETVAL=$?
+    if [ $RETVAL -eq 0 ]; then
+        log_message "$NAME is already running"
+        RETVAL=0
+        return 0
+    fi
+
+    check
+
+    RETVAL=0
+    cassandra_home=`getent passwd $CASSANDRA_USER | awk -F ':' '{ print $6; }'`
+    
+    if [ "x$CASSANDRA_HEAPDUMP_DIR" != "x" ]; then
+        heap_dump_f="$CASSANDRA_HEAPDUMP_DIR/java-`date +%s`.hprof"
+        error_log_f="$CASSANDRA_HEAPDUMP_DIR/hs_err_`date +%s`.log"
+    else
+        heap_dump_f="$cassandra_home/java_`date +%s`.hprof"
+        error_log_f="$cassandra_home/hs_err_`date +%s`.log"
+    fi
+
+    # Make sure the PIDFILE directory location exists
+    mkdir -p `dirname "$PIDFILE"`
+
+    # Configure the system to be more useful for us
+
+    HADOOP_DSE_OPT=
+    SOLR_DSE_OPT=
+    SPARK_DSE_OPT=
+    GRAPH_DSE_OPT=
+
+    if [ -x /usr/bin/dse ]; then
+        dse_CMD="/usr/bin/dse cassandra -p $PIDFILE"
+    elif [ -x "$DSE_HOME"/bin/dse ]; then
+        dse_CMD="\"$DSE_HOME\"/bin/dse cassandra -p $PIDFILE"
+    elif [ -x /usr/share/dse/bin/dse ]; then
+        dse_CMD="/usr/share/dse/bin/dse cassandra -p $PIDFILE"
+    else
+        log_message_failure "Unable to locate /usr/bin/dse or $DSE_HOME/bin/dse"
+        exit 6
+    fi
+    if [ "$SOLR_ENABLED" = "0" ] && [ "$SPARK_ENABLED" = "0" ] && [ "$GRAPH_ENABLED" = "0" ]; then
+        log_message "$DESC starting with only Cassandra enabled (edit $DSE_DEFAULT to enable other features)"
+    else
+      if [ "$SOLR_ENABLED" = "1" ]; then
+        log_message "$DESC starting with Solr enabled (edit $DSE_DEFAULT to disable)"
+        SOLR_DSE_OPT=-s
+        dse_CMD="$dse_CMD -s"
+        EXTRA_FLAGS="$EXTRA_FLAGS $SOLR_EXTRA_FLAGS"
+      fi
+      if [ "$SPARK_ENABLED" = "1" ]; then
+        log_message "$DESC starting with Spark enabled (edit $DSE_DEFAULT to disable)"
+        SPARK_DSE_OPT=-k
+        dse_CMD="$dse_CMD -k"
+        EXTRA_FLAGS="$EXTRA_FLAGS $SPARK_EXTRA_FLAGS"
+      fi
+      if [ "$GRAPH_ENABLED" = "1" ]; then
+        log_message "$DESC starting with graph enabled (edit $DSE_DEFAULT to disable)"
+        GRAPH_DSE_OPT=-g
+        dse_CMD="$dse_CMD -g"
+      fi
+    fi
+
+    if [ $START_STOP_DAEMON -eq 1 ]; then
+        # Set the minimum ulimits
+        set_ulimits
+
+        if [ -x /usr/bin/dse_daemon ]; then
+            dse_daemon_CMD="/usr/bin/dse_daemon"
+        elif [ -x "$DSE_HOME"/bin/dse_daemon ]; then
+            dse_daemon_CMD="$DSE_HOME/bin/dse_daemon"
+        else
+            log_message_failure "Unable to locate /usr/bin/dse_daemon or $DSE_HOME/bin/dse_daemon"
+            exit 6
+        fi
+
+        EXTRA_CLASSPATH=`classpath`
+
+        export EXTRA_CLASSPATH
+        export EXTRA_FLAGS
+
+        log_message_debug "Using start-stop-daemon to start the server"
+        start-stop-daemon -S -c $CASSANDRA_USER -a "$dse_daemon_CMD" -q \
+            -d "$DSE_HOME" -p "$PIDFILE" -t >/dev/null || return 1
+
+        start-stop-daemon -S -c $CASSANDRA_USER -a "$dse_daemon_CMD" -b \
+            -d "$DSE_HOME" -p "$PIDFILE" -- cassandra -p "$PIDFILE" -H "$heap_dump_f" -E "$error_log_f" $HADOOP_DSE_OPT $SOLR_DSE_OPT $SPARK_DSE_OPT $GRAPH_DSE_OPT \
+            >/dev/null || return 2
+    else
+        log_message_debug "Using su to start the server"
+        if [ -e "$PIDFILE" ]; then
+            rm "$PIDFILE"
+        fi
+
+        touch "$PIDFILE"
+        chown $CASSANDRA_USER "$PIDFILE"
+
+        touch "$OUTPUT_FILE"
+        chown $CASSANDRA_USER "$OUTPUT_FILE"
+
+        cd "$DSE_HOME"
+
+        su $CASSANDRA_USER -c "$dse_CMD -H \"$heap_dump_f\" -E \"$error_log_f\" > \"$OUTPUT_FILE\" 2>&1"
+    fi
+
+    # check $WAIT_FOR_START times to see when the JVM is up
+    for tries in `seq $WAIT_FOR_START`; do
+        sleep $WAIT_FOR_START_SLEEP
+        is_running_silent
+        RESULT=$?
+        if [ $RESULT -eq 0 ]; then
+            # JVM is up, carry on
+            break
+        fi
+    done
+
+    if [ $RESULT -ne 0 ]; then # timed out waiting for DSE to start
+        log_message "WARNING: Timed out while waiting for DSE to start. The service may have started though. Please check your logs."
+        return 1;
+    fi
+
+    # At this point the JVM has been detected as being up
+    for tries in `seq $WAIT_FOR_START`; do
+        sleep $WAIT_FOR_START_SLEEP
+        is_running_silent
+        RESULT=$?
+        if [ $RESULT -ne 0 ]; then
+            # JVM died
+            log_message "ERROR: DSE failed to start. Please check your logs."
+            return 1;
+        fi
+    done
+
+    # JVM has been up for at least WAIT_FOR_START * WAIT_FOR_START_SLEEP seconds now
+
+    check_limits "$( cat "$PIDFILE" 2>/dev/null )"
+    # Make sure pid file can be read by everyone
+    chmod a+r "$PIDFILE" > /dev/null 2> /dev/null || true
+    return 0
+}
+
+#
+# Function that stops the daemon/service
+#
+do_stop()
+{
+    # Return
+    #   0 if daemon has been stopped
+    #   1 if daemon could not be stopped
+    #   other if a failure occurred
+    is_running_silent
+    RETVAL=$?
+    if [ $RETVAL -ne 0 ]; then
+      log_message "$NAME is already stopped"
+      RETVAL=0
+      return 0
+    fi
+
+    check
+
+    RETVAL=0
+
+    if [ -f "$PIDFILE" ]; then
+        pid=`cat "$PIDFILE"`
+    fi
+    if [ $START_STOP_DAEMON -eq 1 ]; then
+        start-stop-daemon -K -d "$DSE_HOME" -p "$PIDFILE" -R TERM/$WAIT_FOR_STOP/KILL/5 >/dev/null
+        RETVAL=$?
+        rm -f "$PIDFILE"
+    else
+        log_message_debug "Stopping with killproc"
+        cd "$DSE_HOME"
+        killproc -p $PIDFILE -t $WAIT_FOR_STOP $NAME
+        RETVAL=$?
+        if [ $RETVAL -eq 2 ]; then
+            return 1
+        fi
+        rm -f "$PIDFILE"
+    fi
+
+    # wait for process to stop
+    if [ "$pid" = "" ]; then
+        log_message_debug "Service stopped: no pid"
+        return 0
+    fi
+    for t in `seq $(( $WAIT_FOR_STOP * 2 ))`; do
+        is_running_silent_pid $pid
+        RETVAL=$?
+        if [ $RETVAL -ne 0 ]; then
+            log_message_debug "Service stopped: $RETVAL"
+            return 0
+        fi
+        log_message_debug "Waiting for stop: $RETVAL"
+        sleep 0.5
+    done
+    log_message_debug "Waiting for stop timed out: $RETVAL"
+
+    return $RETVAL
+}
+
+case "$1" in
+  start)
+    log_message_daemon "Starting $DESC" "$NAME"
+    do_start
+    RETVAL=$?
+    case $RETVAL in
+      0) log_message_end 0;;
+      *) log_message_end 1;;
+    esac
+    ;;
+  stop)
+    log_message_daemon "Stopping $DESC" "$NAME"
+    do_stop
+    RETVAL=$?
+    case $RETVAL in
+      0) log_message_end 0;;
+      *) log_message_end 1;;
+    esac
+    ;;
+  restart|force-reload)
+    log_message_daemon "Restarting $DESC" "$NAME"
+    do_stop
+    RETVAL=$?
+    case $RETVAL in
+      0) log_message_end 0;;
+      *) log_message_end 1;;
+    esac
+    if [ $RETVAL -eq 0 ]; then
+      do_start
+      RETVAL=$?
+      case $RETVAL in
+        0) log_message_end 0;;
+        *) log_message_end 1;;
+      esac
+    fi
+    ;;
+  status)
+    is_running
+    RETVAL=$?
+    ;;
+  try-restart|condrestart|reload)
+    log_message_daemon "$0: Unimplemented feature" "$1"
+    log_message_end 3
+    ;;
+  *)
+    log_message "Usage: $SCRIPTNAME {start|stop|restart|force-reload|status}" >&2
+    RETVAL=2
+    ;;
+esac
+
+exit $RETVAL

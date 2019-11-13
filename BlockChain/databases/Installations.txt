@@ -1,0 +1,64 @@
+Hello, 
+
+We will be taking a look at Apache Cassandra/Redis. Downloads relating to it is located at 
+
+Cassandra:
+https://academy.datastax.com/planet-cassandra//cassandra/
+https://academy.datastax.com/quick-downloads/
+
+
+https://www.datastax.com/2012/01/getting-started-with-apache-cassandra-on-windows-the-easy-way
+https://medium.com/@areeves9/cassandras-gossip-on-os-x-single-node-installation-of-apache-cassandra-on-mac-634e6729fad6
+
+Redis:
+https://redislabs.com/ebook/about-this-book/
+https://www.tutorialspoint.com/redis/redis_pub_sub.htm
+
+Best Regards,
+Shree Bharadwaj
+
+# http://try.redis.io/
+
+---- PLAYING WITH DATA
+Let’s start adding some data into Redis and modify that data. We’ll create a basic key name “firstkey” by running the following command:
+SET firstkey “1”
+
+We’ve set the value of 'firstkey' to 1. We can confirm this by running the 'GET' command
+get firstkey
+
+we can update our key’s value by incrementing it
+INCR firstkey
+get firstkey
+
+---- MODELING DATA
+MySQL - users table ( a representation of a row )
+HMSET user:1 id 1 username alexbraunton password a67b9b40f76 email alex@example.com verified Y
+
+We can check that the hash has been added to the server by running the “KEYS *” command:
+KEYS *
+
+Let’s check the hash and see our values:
+HGETALL user:1
+
+If you just need to see the available keys (and not the values) of a hash then you can run the “HKEYS” command:
+HKEYS user:1
+
+To get a specific value, we can access it by its key using the “HGET” command:
+HGET user:1 email
+
+The user wants to update their email address which can be done by using the “HMSET” command:
+HMSET user:1 email "alex_new@example.com"
+
+Let’s say one of our users needs to be deleted from Redis
+DEL user:1
+ 
+Reference : https://www2.linuxacademy.com/howtoguides/12599-introduction-to-redis/
+
+
+
+
+
+
+
+
+

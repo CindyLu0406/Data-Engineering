@@ -1,0 +1,48 @@
+apply plugin: 'scala'
+apply plugin:'application'
+
+group = 'com.datastax'
+
+mainClassName = 'com.datastax.HttpSparkStream'
+
+jar {
+    baseName = 'target/HttpSparkStream'
+    manifest.attributes("Main-Class": mainClassName)
+    from {
+        configurations.assembly.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
+configurations {
+    provided
+    compile.extendsFrom provided
+    assembly
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url = 'https://repo.datastax.com/public-repos'
+    }
+    maven {
+        url = 'https://dl.bintray.com/spark-jobserver/maven'
+    }
+}
+
+dependencies {
+    assembly "com.github.scopt:scopt_${scalaLibVersion}:${scoptVersion}"
+    if (parent) {
+        provided project(':dse-spark')
+    } else {
+        compile "com.github.scopt:scopt_${scalaLibVersion}:${scoptVersion}"
+        provided "com.datastax.dse:dse-spark-dependencies:${dseVersion}"
+    }
+}
+
+clean.delete 'target'
+
+// assemble just jar, ignore building other artifacts introduced by application plugin
+assemble.dependsOn = [ jar ]

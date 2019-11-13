@@ -1,0 +1,42 @@
+/*
+ * Copyright DataStax, Inc.
+ *
+ * Please see the included license file for details.
+ */
+
+apply plugin: 'scala'
+
+group = 'com.datastax'
+ext.mainClassName = 'com.datastax.bdp.fs.DsefsDemo'
+
+
+jar {
+    baseName = 'DsefsDemo'
+    manifest.attributes("Main-Class": mainClassName)
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+    maven {
+        url = 'https://repo.datastax.com/public-repos'
+    }
+}
+
+dependencies {
+    if (parent) {
+        // for internal testing only, end-users use else-branch
+        compile project(':dse-dsefs-plugin')
+    } else {
+        compile("org.scala-lang:scala-library:${scalaVersion}")
+        compile "com.datastax.dse:dse-byos_${scalaLibVersion}:${dseVersion}"
+        compile "org.apache.hadoop:hadoop-common:${hadoopVersion}"
+        compile "com.github.scopt:scopt_${scalaLibVersion}:${scoptVersion}"
+    }
+}
+
+task copyDeps(type: Copy) {
+    into "$buildDir/deps"
+    from configurations.runtime
+}

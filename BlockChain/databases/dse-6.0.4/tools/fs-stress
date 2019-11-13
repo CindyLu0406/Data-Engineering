@@ -1,0 +1,22 @@
+#!/bin/sh
+
+DSE_HOME=`dirname $0`/../
+
+if [ "x$DSE_ENV" = "x" ]; then
+    for include in /etc/dse/dse-env.sh \
+                   ~/.dse-env.sh \
+                   $DSE_HOME/bin/dse-env.sh; do
+        if [ -r $include ]; then
+            . $include
+            break
+        fi
+    done
+elif [ -r $DSE_ENV ]; then
+    . $DSE_ENV
+fi
+
+if [ "$CASSANDRA_HOME" ]; then
+    JAVA_LIBRARY_PATH=$CASSANDRA_HOME/lib/sigar-bin:$JAVA_LIBRARY_PATH
+fi
+
+"$JAVA" -Xmx512m $JAVA_AGENT -cp "$CLASSPATH" $DSE_OPTS -Dlogback.configurationFile=logback-tools.xml -Djava.library.path=$JAVA_LIBRARY_PATH -Dlog4j.configuration="$CASSANDRA_CONF/log4j-tools.properties" com.datastax.bdp.hadoop.fs.stress.FsStressTool "$@"

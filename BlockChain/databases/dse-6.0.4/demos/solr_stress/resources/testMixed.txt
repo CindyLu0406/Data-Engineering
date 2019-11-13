@@ -1,0 +1,3 @@
+SEQUENTIAL
+HTTPREAD|wt=json&q=text:benchmark&facet=true&facet.field=type
+CQL|INSERT INTO demo.solr (id, type, text) VALUES ('$RANDOM_UUID', '$RANDOM_10', 'This is a benchmark of dse search')

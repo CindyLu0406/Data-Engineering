@@ -1,0 +1,2 @@
+DSBranch=6.0.4-rel
+DSCommit=e4afa07549db422d5de369db4dd896c42a558782

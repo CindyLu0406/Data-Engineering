@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<?r=1510617111724html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>IBM - United States</title>
+	<link rel="canonical" href="https://www.ibm.com/us-en/"/>
+	<meta name="robots" content="index,follow">
+	<meta name="description" content="For more than a century IBM has been dedicated to every client&#x27;s success and to creating innovations that matter for the world">
+	<meta name="keywords" content="IBM">
+	<meta name="dcterms.date" content="2015-10-01">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+	<meta http-equiv="Pragma" content="no-cache"/>
+	<meta http-equiv="Expires" content="0"/>
+	<script>
+		digitalData = {
+			page: {
+				category: {
+					primaryCategory: 'SB03'
+				},
+				pageInfo: {
+					effectiveDate: '2015-10-01',
+					expiryDate: '2020-12-18',
+					language: 'en-US',
+					publishDate: '2015-10-01',
+					publisher: 'IBM Corporation',
+					version: 'v18',
+					ibm: {
+						contentDelivery: 'Hand coded',
+						contentProducer: 'Joan Renner',
+						country: 'US',
+						ibmDynamicCm: false,
+						industry: 'ZZ',
+						owner: 'Corporate Webmaster/New York/IBM',
+						siteID: 'GLOBAL',
+						subject: 'IBM000',
+						type: 'CT052'
+					},
+					maxymiser: {
+						synchronous: false
+					},
+					hotjar: {
+						enabled: true
+					}
+				}
+			}
+		};
+	</script>
+	<script src="//1.www.s81c.com/common/stats/ida_stats.js"></script>
+	<link href="//1.www.s81c.com/common/v18/css/www.css" rel="stylesheet">
+	<link href="//1.www.s81c.com/common/v18/css/grid-fluid.css" rel="stylesheet">
+	<script src="//1.www.s81c.com/common/v18/js/www.js"></script>
+	<link rel="stylesheet" href="styles/ibm-ushp.css">
+	<script src="js/ibm-cci.js?r=1510617111724"></script>
+
+	<script>
+		IBMCore.common.util.config.set({
+			sbs: {
+				enabled: false
+			},
+			masthead: {
+				logoanimation: {
+					enabled: true
+				}
+			},
+			footer: {
+				socialLinks: {
+					enabled: true
+				}
+			},
+			scrolltracker:{
+				enabled: true
+			}
+		});
+		IBMCore.common.util.config.set({
+			survey: {
+				global_percent: 10,
+				entry_percent: 10,
+				intercept: {
+					enabled: true,
+					percent: 1,
+					presentDelay: 30,
+					start: "July 26 2017",
+					stop: "Aug 26 2017",
+					invitation: {
+						title: "Tell IBM what you think",
+						content: "Would you please take a minute to send IBM your feedback?",
+						yes_label: "Yes",
+						no_label: "No thanks"
+					},
+					survey: {
+						type: "medallia",
+						id: "web-exp",
+						width: 960,
+						height: 700
+					}
+				},
+				intercept_alternate: {
+					enabled: true,
+					percent: 9,
+					presentDelay: 20,
+					start: "July 26 2017",
+					stop: "Dec 26 2017",
+					invitation: {
+						title: "Tell IBM what you think",
+						content: "Would you please take a minute to send IBM your feedback?",
+						yes_label: "Yes",
+						no_label: "No thanks"
+					},
+					survey: {
+						type: "verint",
+						id: "05A1DD0431AA3015",
+						width: 960,
+						height: 700
+					}
+				}
+			}
+		});
+	</script>
+	<script type="application/ld+json">
+		{
+			"@context": "http://schema.org",
+			"@type": "WebSite",
+			"url": "http://www.ibm.com",
+			"potentialAction": {
+				"@type": "SearchAction",
+				"target": "http://www.ibm.com/Search?q={search_term_string}",
+				"query-input": "required name=search_term_string"
+			}
+		}
+	</script>
+</head>
+<body id="ibm-com" class="ibm-type">
+	<div id="ibm-top" class="ibm-landing-page">
+		<!-- MASTHEAD_BEGIN -->
+		<div id="ibm-masthead" role="banner" aria-label="IBM">
+			<div id="ibm-mast-options">
+				<ul role="toolbar" aria-labelledby="ibm-masthead">
+					<li id="ibm-geo" role="presentation">
+						<a href="http://www.ibm.com/planetwide/select/selector.html" role="button" aria-label="United states selected - Choose a country">United States</a>
+					</li>
+				</ul>
+			</div>
+			<div id="ibm-universal-nav">
+				<nav aria-label="IBM">
+					<div id="ibm-home">
+						<a href="http://www.ibm.com/us/en/">IBM&reg;</a>
+					</div>
+					<ul id="ibm-menu-links" role="toolbar" aria-label="Site map">
+						<li>
+							<a href="http://www.ibm.com/sitemap/us/en/">Site map</a>
+						</li>
+					</ul>
+				</nav>
+				<div id="ibm-search-module" role="search" aria-labelledby="ibm-masthead">
+					<form id="ibm-search-form" action="https://www.ibm.com/Search/" method="get">
+						<p>
+							<label for="q">IBM</label>
+							<input type="text" maxlength="100" value="" placeholder="Search" name="q" id="q" aria-label="Search"/>
+							<input type="hidden" value="18" name="v"/>
+							<input type="hidden" value="utf" name="en"/>
+							<input type="hidden" value="en" name="lang"/>
+							<input type="hidden" value="us" name="cc"/>
+							<input type="submit" id="ibm-search" class="ibm-btn-search" value="Submit"/>
+						</p>
+					</form>
+				</div>
+			</div>
+		</div>
+		<!-- MASTHEAD_END -->
+		<!-- MAIN PAGE WRAPPER AROUND LEADSPACE, MAIN CONTENT SIDENAV AND RELATED CONTENT -->
+		<div id="ibm-content-wrapper">
+
+	
+	<header aria-labelledby="ibm-pagetitle-h1">
+		<div id="ibm-leadspace-head" class="ibm-alternate-background ibm-video-background" style="background: url(images/11132017-ls-cloud-private-for-dev-17583-2112x760.jpg) center center / cover no-repeat #000; border-bottom: 0;">
+			<div class="ibm">
+				<div class="ibm-col-group">
+					<div class="ibm-hidden-medium ibm-hidden-large ibm-hidden-xlarge ibm-padding-bottom-0">
+						<img src="images/11132017-ls-cloud-private-for-dev-17583-2112x760.jpg" class="ibm-resize" alt="Turn your great ideas into code, quickly and securely" title="Turn your great ideas into code, quickly and securely" />
+					</div>
+				</div>
+			</div>
+			<div id="ibm-leadspace-body" class="ibm-padding-top-1 ibm-padding-bottom-1 ibm-alternate-background">
+				<div class="ibm">
+					<div class="ibm-col-group">
+						<div class="ibm-col-sm-4 ibm-col-md-6 ibm-col-lg-8">
+							<h1 id="ibm-pagetitle-h1" class="ibm-type-i ibm-padding-bottom-0">Turn your great ideas into code, quickly and securely</h1>
+							<p class="ibm-type-c ibm-padding-bottom-0">On IBM Cloud Private, scalable cloud-native apps are built in hours, not weeks</p>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<a href="https://www.ibm.com/cloud-computing/products/ibm-cloud-private/?lnk=ushpv18l1&amp;lnk2=learn" id="ibm-homepage-ls-cta-1">See how developers can design, develop and deploy faster &#8594;</a>
+							</p>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<a href="https://www.ibm.com/account/reg/us-en/signup?formid=urx-20295&amp;lnk=ushpv18l2&amp;lnk2=learn" id="ibm-homepage-ls-cta-2">Get started at no charge &#8594;</a>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="ibm-video-background-container ibm-hidden-small">
+				<video loop="10" muted autoplay style="width: 100%;">
+					<source type="video/mp4" src="images/11132017-ls-cloud-private-for-dev1-17583-2112x760.mp4"></source>
+					<source type="video/webm" src="images/11132017-ls-cloud-private-for-dev1-17583-2112x760.webm"></source>
+				</video>
+			</div>
+		</div>
+	</header>
+
+
+	<main aria-labelledby="ibm-section-h2">
+		<div id="ibm-pcon">
+			<div id="ibm-content">
+				<div id="ibm-content-body" class="ibm-padding-top-0">
+					<div id="ibm-content-main">
+						
+
+						<section id="ibm-featured" class="ibm-padding-top-1 ibm-padding-bottom-1" data-page="US Homepage">
+	<div class="ibm">
+		<div class="ibm-col-group" data-widget="setsameheight" data-items=".ibm_cci-same-height" data-always="true">
+			<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4">
+				<h2 class="ibm-type-d" id="ibm-section-h2">This week at IBM</h2>
+			</div>
+			
+				<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4">
+					<a class="ibm-blocklink ibm-no-border" href="https://www.ibm.com/events/think/attend/register/?lnk=ushpv18f3&amp;lnk2=learn" id="ibm-homepage-feature-card-1" onClick="ibmStats.event({ 'ibmEV': 'USHP Interactions', 'ibmEvAction': 'https://www.ibm.com/events/think/attend/register/?lnk=ushpv18f3&amp;lnk2=learn', 'ibmEvLinkTitle' : 'Think Early Bird', 'ibmEvGroup' : 'Corporate', 'ibmEvName' : 'Event', 'ibmEvSection' : 'F3', 'ibmEvTarget' : 'Event' });">
+						<div class="ibm-card ibm-card--noborder ibm_cci-same-height">
+							<div class="ibm-card__image">
+								<img class="ibm-resize" src="images/11132017_F3_Early-bird-THINK_17575_444x320.jpg" width="300" height="170" alt="Think 2018: last call for early registration" />
+							</div>
+							<div class="ibm-card__content ibm-no-side-padding">
+								<h3 class="ibm-type-d ibm-padding-bottom-0">Think 2018: last call for early registration</h3>
+								<p class="ibm-type-c ibm-padding-bottom-0">Inspiring speakers, visionary leaders and hands-on training to build your skills </p>
+							</div>
+							<div class="ibm-card__bottom ibm-padding-bottom-0 ibm-no-side-padding">
+								<p class="ibm-type-c ibm-padding-bottom-0">
+									<span class="duo-link-fade">Register by November 17th and save&nbsp;&#8594;</span>
+								</p>
+							</div>
+						</div>
+					</a>
+				</div>
+			
+				<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4">
+					<a class="ibm-blocklink ibm-no-border" href="https://www-935.ibm.com/services/ibmix/brand-belonging/?lnk=ushpv18f2&amp;lnk2=learn" id="ibm-homepage-feature-card-2" onClick="ibmStats.event({ 'ibmEV': 'USHP Interactions', 'ibmEvAction': 'https://www-935.ibm.com/services/ibmix/brand-belonging/?lnk=ushpv18f2&amp;lnk2=learn', 'ibmEvLinkTitle' : 'iX Brand Belonging', 'ibmEvGroup' : 'iX', 'ibmEvName' : 'Product', 'ibmEvSection' : 'F2', 'ibmEvTarget' : 'learn' });">
+						<div class="ibm-card ibm-card--noborder ibm_cci-same-height">
+							<div class="ibm-card__image">
+								<img class="ibm-resize" src="images/11132017_f2_X-Brand_17328_444x320.jpg" width="300" height="170" alt="What’s good for people is good for business" />
+							</div>
+							<div class="ibm-card__content ibm-no-side-padding">
+								<h3 class="ibm-type-d ibm-padding-bottom-0">What’s good for people is good for business</h3>
+								<p class="ibm-type-c ibm-padding-bottom-0">A new study explores the link between belonging and brand experiences</p>
+							</div>
+							<div class="ibm-card__bottom ibm-padding-bottom-0 ibm-no-side-padding">
+								<p class="ibm-type-c ibm-padding-bottom-0">
+									<span class="duo-link-fade">See how you can build a more resonant brand&nbsp;&#8594;</span>
+								</p>
+							</div>
+						</div>
+					</a>
+				</div>
+			
+				<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4">
+					<a class="ibm-blocklink ibm-no-border" href="https://www.ibm.com/us-en/marketplace/dynamic-pricing?lnk=ushpv18f1&amp;lnk2=learn" id="ibm-homepage-feature-card-3" onClick="ibmStats.event({ 'ibmEV': 'USHP Interactions', 'ibmEvAction': 'https://www.ibm.com/us-en/marketplace/dynamic-pricing?lnk=ushpv18f1&amp;lnk2=learn', 'ibmEvLinkTitle' : 'Dynamic pricing', 'ibmEvGroup' : 'Watson', 'ibmEvName' : 'trial', 'ibmEvSection' : 'F1', 'ibmEvTarget' : 'try it' });">
+						<div class="ibm-card ibm-card--noborder ibm_cci-same-height">
+							<div class="ibm-card__image">
+								<img class="ibm-resize" src="images/11132017_F1_Dynamic-Pricing_final_17500_444x320.jpg" width="300" height="170" alt="IBM Dynamic Pricing helps you close the sale" />
+							</div>
+							<div class="ibm-card__content ibm-no-side-padding">
+								<h3 class="ibm-type-d ibm-padding-bottom-0">IBM Dynamic Pricing helps you close the sale</h3>
+								<p class="ibm-type-c ibm-padding-bottom-0">Respond in real time to changes in competitors’ pricing, product demand and market conditions</p>
+							</div>
+							<div class="ibm-card__bottom ibm-padding-bottom-0 ibm-no-side-padding">
+								<p class="ibm-type-c ibm-padding-bottom-0">
+									<span class="duo-link-fade">Start your free trial&nbsp;&#8594;</span>
+								</p>
+							</div>
+						</div>
+					</a>
+				</div>
+			
+		</div>
+	</div>
+</section>
+
+						<section id="ibm-trials" class="ibm-padding-top-1 ibm-padding-bottom-1 ibm-background-neutral-white-40" data-page="US Homepage">
+	<div class="ibm">
+		<div class="ibm-col-group" data-widget="setsameheight" data-items=".ibm_cci-same-height" data-always="true">
+			<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4">
+				<h2 class="ibm-type-d ibm-type-semibold">Explore online product trials</h2>
+				<p class="ibm-type-c ibm-padding-bottom-0">
+					<a class="duo-link-fade" href="https://www.ibm.com/us-en/marketplace/collections/offers-and-discounts/?link=ushpv18t5&amp;lnk2=trial_mktpl_MPDISC" id="ibm-homepage-trials-great-deals">See current deals&nbsp;&#8594;</a>
+				</p>
+				<p class="ibm-type-c ibm-padding-bottom-0">
+					<a class="duo-link-fade" href="https://www.ibm.com/marketplace?link=ushpv18t4&amp;lnk2=trial_mktpl" id="ibm-homepage-trials-see-more">See more products&nbsp;&#8594;</a>
+				</p>
+			</div>
+			
+				<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4">
+					<a class="ibm-blocklink ibm-no-border ibm-trials-cards" href="https://www.ibm.com/us-en/marketplace/spss-modeler/?lnk=ushpv18t1&lnk2=trial_mkt_SPSSMod&psrc=none&pexp=def" id="ibm-homepage-trai-card-1" onClick="ibmStats.event({ 'ibmEV': 'USHP Interactions', 'ibmEvAction': 'https://www.ibm.com/us-en/marketplace/spss-modeler/?lnk=ushpv18t1&lnk2=trial_mkt_SPSSMod&psrc=none&pexp=def', 'ibmEvLinkTitle' : 'SPSS Modeler', 'ibmEvGroup' : 'Analytics', 'ibmEvName' : 'try/buy/demo', 'ibmEvSection' : 'T1', 'ibmEvTarget' : 'trial-mkt' });">
+						<div class="ibm-card ibm-card--noborder ibm_cci-same-height">
+							<div class="ibm-card__image">
+								<img class="ibm-resize" src="images/trial-spss-modeler.png" width="300" height="170" alt="IBM SPSS Modeler" />
+							</div>
+							<div class="ibm-card__content ibm-no-side-padding">
+								<h3 class="ibm-type-d ibm-padding-bottom-0">IBM SPSS Modeler</h3>
+								<p class="ibm-type-c ibm-padding-bottom-0">Get quick access to predictive analytics with a flexible subscription</p>
+							</div>
+							<div class="ibm-card__bottom ibm-padding-bottom-0 ibm-no-side-padding">
+								<p class="ibm-type-c ibm-padding-bottom-0">
+									<span class="duo-link-fade">Start your free trial now&nbsp;&#8594;</span>
+								</p>
+							</div>
+						</div>
+					</a>
+				</div>
+			
+				<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4">
+					<a class="ibm-blocklink ibm-no-border ibm-trials-cards" href="https://www.ibm.com/us-en/marketplace/cloud-requirements-management/?lnk=ushpv18t2&lnk2=trial_mkt_DOORSng&psrc=none&pexp=def" id="ibm-homepage-trai-card-2" onClick="ibmStats.event({ 'ibmEV': 'USHP Interactions', 'ibmEvAction': 'https://www.ibm.com/us-en/marketplace/cloud-requirements-management/?lnk=ushpv18t2&lnk2=trial_mkt_DOORSng&psrc=none&pexp=def', 'ibmEvLinkTitle' : 'Rational DOORS nextgen', 'ibmEvGroup' : 'IoT', 'ibmEvName' : 'try/buy/demo', 'ibmEvSection' : 'T2', 'ibmEvTarget' : 'trial-mkt' });">
+						<div class="ibm-card ibm-card--noborder ibm_cci-same-height">
+							<div class="ibm-card__image">
+								<img class="ibm-resize" src="images/trial-rational-doors-next-generation.png" width="300" height="170" alt="Rational DOORS Next Generation" />
+							</div>
+							<div class="ibm-card__content ibm-no-side-padding">
+								<h3 class="ibm-type-d ibm-padding-bottom-0">Rational DOORS Next Generation</h3>
+								<p class="ibm-type-c ibm-padding-bottom-0">Simplify development with collaborative requirements management</p>
+							</div>
+							<div class="ibm-card__bottom ibm-padding-bottom-0 ibm-no-side-padding">
+								<p class="ibm-type-c ibm-padding-bottom-0">
+									<span class="duo-link-fade">Buy now and save 10&percnt;&nbsp;&#8594;</span>
+								</p>
+							</div>
+						</div>
+					</a>
+				</div>
+			
+				<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4">
+					<a class="ibm-blocklink ibm-no-border ibm-trials-cards" href="https://www.ibm.com/us-en/marketplace/analytics-driven-data-management/?lnk=ushpv18t3&lnk2=trial_mkt_SpectrumInsights&psrc=none&pexp=def" id="ibm-homepage-trai-card-3" onClick="ibmStats.event({ 'ibmEV': 'USHP Interactions', 'ibmEvAction': 'https://www.ibm.com/us-en/marketplace/analytics-driven-data-management/?lnk=ushpv18t3&lnk2=trial_mkt_SpectrumInsights&psrc=none&pexp=def', 'ibmEvLinkTitle' : 'Spectrum Control Insights', 'ibmEvGroup' : 'Systems', 'ibmEvName' : 'try/buy/demo', 'ibmEvSection' : 'T3', 'ibmEvTarget' : 'trial-mkt' });">
+						<div class="ibm-card ibm-card--noborder ibm_cci-same-height">
+							<div class="ibm-card__image">
+								<img class="ibm-resize" src="images/trial-spectrum-storage-control-insights.png" width="300" height="170" alt="IBM Spectrum Control Storage Insights" />
+							</div>
+							<div class="ibm-card__content ibm-no-side-padding">
+								<h3 class="ibm-type-d ibm-padding-bottom-0">IBM Spectrum Control Storage Insights</h3>
+								<p class="ibm-type-c ibm-padding-bottom-0">Optimize Dell, EMC and IBM storage infrastructures from the cloud</p>
+							</div>
+							<div class="ibm-card__bottom ibm-padding-bottom-0 ibm-no-side-padding">
+								<p class="ibm-type-c ibm-padding-bottom-0">
+									<span class="duo-link-fade">Start your free 30-day trial&nbsp;&#8594;</span>
+								</p>
+							</div>
+						</div>
+					</a>
+				</div>
+			
+		</div>
+	</div>
+</section>
+
+						
+
+
+<section id="ibm-inside" class="ibm-padding-top-0 ibm-padding-bottom-0 duo-two-color-bleed" data-page="US Homepage">
+	<div class="ibm ibm-alternate-background">
+		<div class="ibm-col-group" data-widget="setsameheight" data-items=".ibm_cci-same-height" data-always="true">
+			<div class="ibm-col-sm-4 ibm-col-md-12 ibm-col-lg-8 ibm-col-full">
+				<div class="ibm-col-group">
+					<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4 duo-background-blue">
+						<h2 class="ibm-type-d ibm-padding-top-1 ibm-padding-bottom-0" id="ibm-section-h2">Inside IBM</h2>
+						<p class="ibm-type-c ibm-padding-bottom-0">
+							<a href="https://www.ibm.com/thought-leadership/inside-ibm/?lnk=ushpv18n4&lnk2=learn">See more stories&nbsp;&#8594;</a>
+						</p>
+					</div>
+					<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4 ibm-background-black-core ibm-nospacing">
+						<a class="ibm-blocklink" href="http://www-935.ibm.com/services/us/gbs/thoughtleadership/winningcloud/?lnk=ushpv18n1&amp;lnk2=learn" id="ibm-homepage-inside-card-1" onClick="ibmStats.event({ 'ibmEV': 'USHP Interactions', 'ibmEvAction': 'http://www-935.ibm.com/services/us/gbs/thoughtleadership/winningcloud/?lnk=ushpv18n1&amp;lnk2=learn', 'ibmEvLinkTitle' : 'IBV winning cloud', 'ibmEvGroup' : 'GBS', 'ibmEvName' : 'Thought leadership', 'ibmEvSection' : 'N1', 'ibmEvTarget' : 'learn' });">
+							<div class="ibm-card ibm-card--noborder ibm_cci-same-height">
+								<div class="ibm-card__image">
+									<img class="ibm-resize" src="images/11142017_N1_Winning_Cloud_17408_520x260.jpg" width="300" height="170" alt="2/3 of leading execs will invent new customer experiences on&amp;nbsp;cloud" />
+								</div>
+								<div class="ibm-card__content">
+									<h3 class="ibm-type-d ibm-padding-bottom-0">2/3 of leading execs will invent new customer experiences on&nbsp;cloud</h3>
+									<p class="ibm-type-c ibm-padding-bottom-0">It&#8217;s where transformative technologies emerge as strategic reinvention</p>
+								</div>
+								<div class="ibm-card__bottom">
+									<p class="ibm-type-c ibm-padding-bottom-0">
+										<span>Read about the outperformers in <i>Winning Cloud Strategies</i>&nbsp;&#8594;</span>
+									</p>
+								</div>
+							</div>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="ibm-col-sm-4 ibm-col-md-12 ibm-col-lg-8 ibm-col-full" style="background: url(images/11132017-n-episode6-starwars-1056x970.jpg) top right / cover no-repeat transparent;">
+				<div class="ibm-col-group">
+					<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4 ibm-nospacing">
+							<div class="ibm-card ibm-card--noborder ibm_cci-same-height">
+								<div class="ibm-card__image">
+									<p class="ibm-type-a ibm-padding-content ibm-card__eyebrow">This week on <span class="ibm-type-italic">Science and Star Wars</span></p>
+									<img class="ibm-resize" src="images/n1-transparent.png" width="300" height="170" alt="Episode 6: Robotic Limbs" />
+								</div>
+								<div class="ibm-card__content">
+									<h3 class="ibm-type-d ibm-padding-bottom-0">Episode 6: Robotic Limbs</h3>
+									<p class="ibm-type-c ibm-padding-bottom-0">Ready, set, go! The race is on as Anthony tests out an advanced robotic hand.</p>
+								</div>
+								<div class="ibm-card__bottom">
+									<p class="ibm-type-c ibm-padding-bottom-0">
+										<a class="ibm-blocklink" href="https://www.ibm.com/thought-leadership/scienceandstarwars/ep6.html?lnk=ushpv18n2&amp;lnk2=learn" id="ibm-homepage-cognitive-card-1" onClick="ibmStats.event({ 'ibmEV': 'USHP Interactions', 'ibmEvAction': 'https://www.ibm.com/thought-leadership/scienceandstarwars/ep6.html?lnk=ushpv18n2&amp;lnk2=learn', 'ibmEvLinkTitle' : 'StarWars.ep6', 'ibmEvGroup' : 'Advertising', 'ibmEvName' : 'Ad support', 'ibmEvSection' : 'N2', 'ibmEvTarget' : 'learn' });">
+											<span>Learn about voice control <br class="ibm-br-medium ibm-br-xlarge ibm-br-large" />and try your own robotic arm project&nbsp;&#8594;</span>
+										</a>
+									</p>
+
+									<p class="ibm-type-c ibm-padding-bottom-0">
+										<a class="icon-ibm-duo-play" data-widget="videoplayer" data-overlayplayersize="xlarge" data-videodisplay="overlay" data-videoid="SlArwAQH_5s" data-videotype="youtube" data-showvideoduration="false" href="javaScript:return(false);" id="ibm-homepage-inside-card-2" onClick="ibmStats.event({ 'ibmEV': 'USHP Interactions', 'ibmEvAction': 'https://www.ibm.com/thought-leadership/scienceandstarwars/ep6.html?lnk=ushpv18n2&amp;lnk2=learn', 'ibmEvLinkTitle' : 'StarWars.ep6', 'ibmEvGroup' : 'Advertising', 'ibmEvName' : 'Ad support', 'ibmEvSection' : 'N2', 'ibmEvTarget' : 'learn' });">
+											Watch the video&nbsp;
+										</a>
+									</p>
+								</div>
+							</div>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+
+						<section id="ibm-you" class="ibm-padding-top-1 ibm-padding-bottom-1" data-page="US Homepage">
+	<div class="ibm">
+		<div class="ibm-col-group">
+			<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4">
+				<p class="ibm-padding-top-0">
+					<img src="images/2x-youIBM-lockup.png" width="50%" height="50%" />
+				</p>
+				<h2 class="ibm-type-c ibm-padding-bottom-0">See how the right platforms and the right people can help you do your best work</h2>
+				<p class="ibm-type-c ibm-padding-bottom-0">
+					<a class="duo-link-fade" href="https://www.ibm.com/thought-leadership/you/?lnk=ushpv18c11&amp;lnk2=learn">Learn more&nbsp;&#8594;</a>
+				</p>
+				<div class="ibm-col-group ibm-hidden-xlarge ibm-hidden-small">
+					<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-4 ibm-no-side-padding">
+						<a href="https://www.ibm.com/analytics/us/en/?lnk=ushpv18c1&amp;lnk2=learn" class="ibm-blocklink ibm-no-border">
+							<h4 class="ibm-type-d ibm-padding-bottom-0">Analytics</h4>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<span class="duo-link-fade">Transform your data into fresh insights and new perspectives&nbsp;&#8594;</span>
+							</p>
+						</a>
+					</div>
+					<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-4 ibm-no-side-padding">
+						<a href="https://www.ibm.com/blockchain/?lnk=ushpv18c10&amp;lnk2=learn" class="ibm-blocklink ibm-no-border">
+							<h4 class="ibm-type-d ibm-padding-bottom-0">Blockchain</h4>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<span class="duo-link-fade">Build trust, transparency and efficiency with blockchain in your business&nbsp;&#8594;</span>
+							</p>
+						</a>
+					</div>
+					<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-4 ibm-no-side-padding">
+						<a href="https://www.ibm.com/cloud-computing/?lnk=ushpv18c2&amp;lnk2=learn" class="ibm-blocklink ibm-no-border">
+							<h4 class="ibm-type-d ibm-padding-bottom-0">Cloud</h4>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<span class="duo-link-fade">Innovate with the cloud that is AI-ready and secure to the core&nbsp;&#8594;</span>
+							</p>
+						</a>
+					</div>
+					<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-4 ibm-no-side-padding">
+						<a href="https://www.ibm.com/watson/customer-engagement/?lnk=ushpv18c3&amp;lnk2=learn" class="ibm-blocklink ibm-no-border">
+							<h4 class="ibm-type-d ibm-padding-bottom-0">Customer Engagement</h4>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<span class="duo-link-fade">Personalize experiences at every stage of the customer journey&nbsp;&#8594;</span>
+							</p>
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-12 ibm-col-full">
+				<div class="ibm-col-group">
+					<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-4 ibm-hidden-medium ibm-hidden-large">
+						<a href="https://www.ibm.com/analytics/us/en/?lnk=ushpv18c1&amp;lnk2=learn" class="ibm-blocklink ibm-no-border">
+							<h4 class="ibm-type-d ibm-padding-bottom-0">Analytics</h4>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<span class="duo-link-fade">Transform your data into fresh insights and new perspectives&nbsp;&#8594;</span>
+							</p>
+						</a>
+					</div>
+					<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-4 ibm-hidden-medium">
+						<a href="https://www.ibm.com/blockchain/?lnk=ushpv18c10&amp;lnk2=learn" class="ibm-blocklink ibm-no-border">
+							<h4 class="ibm-type-d ibm-padding-bottom-0">Blockchain</h4>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<span class="duo-link-fade">Build trust, transparency and efficiency with blockchain in your business&nbsp;&#8594;</span>
+							</p>
+						</a>
+					</div>
+					<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-4 ibm-hidden-medium">
+						<a href="https://www.ibm.com/cloud-computing/?lnk=ushpv18c2&amp;lnk2=learn" class="ibm-blocklink ibm-no-border">
+							<h4 class="ibm-type-d ibm-padding-bottom-0">Cloud</h4>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<span class="duo-link-fade">Innovate with the cloud that is AI-ready and secure to the core&nbsp;&#8594;</span>
+							</p>
+						</a>
+					</div>
+					<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-4 ibm-hidden-medium">
+						<a href="https://www.ibm.com/watson/customer-engagement/?lnk=ushpv18c3&amp;lnk2=learn" class="ibm-blocklink ibm-no-border">
+							<h4 class="ibm-type-d ibm-padding-bottom-0">Customer Engagement</h4>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<span class="duo-link-fade">Personalize experiences at every stage of the customer journey&nbsp;&#8594;</span>
+							</p>
+						</a>
+					</div>
+					<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-4">
+						<a href="http://www-03.ibm.com/financing/us-en/?lnk=ushpv18c5&amp;lnk2=learn" class="ibm-blocklink ibm-no-border">
+							<h4 class="ibm-type-d ibm-padding-bottom-0">Financing</h4>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<span class="duo-link-fade">Accelerate innovation with flexible financing that fits your budget&nbsp;&#8594;</span>
+							</p>
+						</a>
+					</div>
+					<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-4">
+						<a href="https://www.ibm.com/it-infrastructure/us-en/?lnk=ushpv18c4&amp;lnk2=learn" class="ibm-blocklink ibm-no-border">
+							<h4 class="ibm-type-d ibm-padding-bottom-0">IT Infrastructure</h4>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<span class="duo-link-fade">Unleash your creativity with an infrastructure designed around you&nbsp;&#8594;</span>
+							</p>
+						</a>
+					</div>
+					<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-4">
+						<a href="https://www.ibm.com/security/?lnk=ushpv18c7&amp;lnk2=learn" class="ibm-blocklink ibm-no-border">
+							<h4 class="ibm-type-d ibm-padding-bottom-0">Security</h4>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<span class="duo-link-fade">Prevent, detect and respond to cyberthreats in real time&nbsp;&#8594;</span>
+							</p>
+						</a>
+					</div>
+					<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-4">
+						<a href="https://www.ibm.com/technologyservices/us/en/?lnk=ushpv18c9&amp;lnk2=learn" class="ibm-blocklink ibm-no-border">
+							<h4 class="ibm-type-d ibm-padding-bottom-0">Services</h4>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<span class="duo-link-fade">Focus on your mission with expert help from business and IT services&nbsp;&#8594;</span>
+							</p>
+						</a>
+					</div>
+					<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-4">
+						<a href="https://www.ibm.com/watson/?lnk=ushpv18c8&amp;lnk2=learn" class="ibm-blocklink ibm-no-border">
+							<h4 class="ibm-type-d ibm-padding-bottom-0">Watson</h4>
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<span class="duo-link-fade">Unlock new capabilities with the AI platform built for your business&nbsp;&#8594;</span>
+							</p>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+
+
+
+
+
+						
+	<section id="ibm-content-spotlight" class="ibm-padding-top-0 ibm-padding-bottom-0 ibm-background-neutral-white-40" data-page="US Homepage">
+		<div class="ibm">
+
+			<div class="ibm-col-group ibm-hidden-medium ibm-hidden-large ibm-hidden-xlarge">
+				<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-16">
+					<p class="ibm-padding-bottom-0">
+						<img src="images/11132017_CS_mobile_SilverHook_17510_520x260.jpg" class="ibm-resize">
+					</p>
+				</div>
+			</div>
+			<div class="ibm-col-group ibm-hidden-medium ibm-hidden-large ibm-hidden-xlarge">
+				<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-8 ibm-col-full ibm-padding-top-0 ibm-padding-bottom-0">
+					<div class="ibm-col-group">
+						<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-16">
+							<p class="ibm-type-a ibm-type-italic ibm-padding-top-0 ibm-padding-bottom-0">Case study of the week</p>
+							<h3 class="ibm-type-f ibm-type-semibold ibm-padding-top-0 ibm-padding-bottom-0">SilverHook Powerboat Team</h3>
+						</div>
+					</div>
+					<div class="ibm-col-group">
+						<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4">
+							<p class="ibm-type-c ibm-padding-bottom-0">One hour, eighteen minutes and three seconds. It&#8217;s a new world record &mdash; the fastest time ever for a powerboat crossing the Florida Straits from Key West to Cuba. But work toward the record really began five years earlier, when team captain Nigel Hook started bringing business tech aboard the boat.</p>
+						</div>
+						<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4">
+							<p class="ibm-type-c ibm-padding-bottom-0">Now, <a href="https://www.ibm.com/watson-analytics" class="duo-link-fade">analytics</a>, <a href="https://www.ibm.com/internet-of-things/" class="duo-link-fade">IoT</a>, <a href="https://www.ibm.com/cloud/" class="duo-link-fade">cloud computing</a> and telemetry help the team race faster and safer. Nearly everything on board is monitored, tuned and shared in the cloud &mdash; including driver vitals. Which means that, for the first time ever, virtual passengers can ride along inside the cockpit, watching the speedometer climb and heart rates spike as the boat approaches 127mph over choppy water. </p>
+						</div>
+					</div>
+					<div class="ibm-col-group">
+						<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-16">
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<a class="duo-link-fade" href="https://www.ibm.com/blogs/client-voices/silverhook-ibm-watson-iot-ocean-racing-world-record/?lnk=ushpv18cs1&amp;lnk2=learn">Read the story behind the record&nbsp;&#8594;</a>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="ibm-col-group ibm-hidden-small">
+				<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-8 ibm-col-full ibm-padding-top-3 ibm-padding-bottom-3">
+					<div class="ibm-col-group">
+						<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-16">
+							<p class="ibm-type-a ibm-type-italic ibm-padding-top-0 ibm-padding-bottom-0">Case study of the week</p>
+							<h3 class="ibm-type-f ibm-type-semibold ibm-padding-top-0 ibm-padding-bottom-0">SilverHook Powerboat Team</h3>
+						</div>
+					</div>
+					<div class="ibm-col-group">
+						<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4">
+							<p class="ibm-type-c ibm-padding-bottom-0">One hour, eighteen minutes and three seconds. It&#8217;s a new world record &mdash; the fastest time ever for a powerboat crossing the Florida Straits from Key West to Cuba. But work toward the record really began five years earlier, when team captain Nigel Hook started bringing business tech aboard the boat.</p>
+						</div>
+						<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-4">
+							<p class="ibm-type-c ibm-padding-bottom-0">Now, <a href="https://www.ibm.com/watson-analytics" class="duo-link-fade">analytics</a>, <a href="https://www.ibm.com/internet-of-things/" class="duo-link-fade">IoT</a>, <a href="https://www.ibm.com/cloud/" class="duo-link-fade">cloud computing</a> and telemetry help the team race faster and safer. Nearly everything on board is monitored, tuned and shared in the cloud &mdash; including driver vitals. Which means that, for the first time ever, virtual passengers can ride along inside the cockpit, watching the speedometer climb and heart rates spike as the boat approaches 127mph over choppy water. </p>
+						</div>
+					</div>
+					<div class="ibm-col-group">
+						<div class="ibm-col-sm-4 ibm-col-md-8 ibm-col-lg-16">
+							<p class="ibm-type-c ibm-padding-bottom-0">
+								<a class="duo-link-fade" href="https://www.ibm.com/blogs/client-voices/silverhook-ibm-watson-iot-ocean-racing-world-record/?lnk=ushpv18cs1&amp;lnk2=learn">Read the story behind the record&nbsp;&#8594;</a>
+							</p>
+						</div>
+					</div>
+				</div>
+				<div class="ibm-col-sm-4 ibm-col-md-4 ibm-col-lg-8" style="background: url(images/11132017_CS_SilverHook_17510_1042x1130.jpg) top right / cover no-repeat #000;"></div>
+			</div>
+
+		</div>
+	</section>
+
+
+						<section id="ibm-help" class="ibm-background-blue-gradient ibm-padding-top-1 ibm-padding-bottom-1 ibm-alternate-background" data-page="US Homepage">
+	<div class="ibm">
+		<div class="ibm-col-group">
+			<div class="ibm-col-sm-4 ibm-col-md-2 ibm-col-lg-4">
+				<h2 class="ibm-type-d" id="ibm-section-h2">How can we help?</h2>
+			</div>
+			<div class="ibm-col-sm-4 ibm-col-md-2 ibm-col-lg-4">
+				<a href="https://www.ibm.com/support/home/?lnk=ushpv18hcwh1&amp;lnk2=support" id="ibm-hompage-help-support">
+					<h4 class="ibm-type-d ibm-padding-bottom-0">Support portal</h4>
+					<p class="ibm-type-c ibm-padding-bottom-0 ibm-textcolor-white-core">Get help today for the IBM services and software you own&nbsp;&#8594;</p>
+				</a>
+			</div>
+			<div class="ibm-col-sm-4 ibm-col-md-2 ibm-col-lg-4">
+				<a href="http://www.ibm.com/support/knowledgecenter/?lnk=ushpv18hcwh2&amp;lnk2=support" id="ibm-hompage-help-knowledge">
+					<h4 class="ibm-type-d ibm-padding-bottom-0">IBM Knowledge Center</h4>
+					<p class="ibm-type-c ibm-padding-bottom-0 ibm-textcolor-white-core">Find answers quickly in official IBM product documentation&nbsp;&#8594;</p>
+				</a>
+			</div>
+			<div class="ibm-col-sm-4 ibm-col-md-2 ibm-col-lg-4">
+				<a href="http://www.redbooks.ibm.com/?lnk=ushpv18hcwh3&amp;lnk2=learn" id="ibm-hompage-help-redbooks">
+					<h4 class="ibm-type-d ibm-padding-bottom-0">Redbooks</h4>
+					<p class="ibm-type-c ibm-padding-bottom-0 ibm-textcolor-white-core">Complimentary, step-by-step guides for download and mobile&nbsp;&#8594;</p>
+				</a>
+			</div>
+		</div>
+		<div class="ibm-col-group">
+			<div class="ibm-col-sm-0 ibm-col-md-2 ibm-col-lg-4">&nbsp;</div>
+			<div class="ibm-col-sm-4 ibm-col-md-3 ibm-col-lg-4">
+				<a href="http://www.ibm.com/developerworks/?lnk=ushpv18hcwh4&amp;lnk2=learn" id="ibm-hompage-help-developerworks">
+					<h4 class="ibm-type-d ibm-padding-bottom-0">developerWorks</h4>
+					<p class="ibm-type-c ibm-padding-bottom-0 ibm-textcolor-white-core">Explore technical topics, find trial software and join the community&nbsp;&#8594;</p>
+				</a>
+			</div>
+			<div class="ibm-col-sm-4 ibm-col-md-3 ibm-col-lg-4">
+				<a href="https://www-03.ibm.com/services/learning/ites.wss/zz/en?pageType=page&amp;c=a0011023&amp;lnk=ushpv18hcwh6&amp;lnk2=learn" class="ibm_cci-border-decoration" id="ibm-hompage-help-learninglab">
+					<h4 class="ibm-type-d ibm-padding-bottom-0">IBM Training and Skills</h4>
+					<p class="ibm-type-c ibm-padding-bottom-0 ibm-textcolor-white-core">Start your learning journey, build expertise and get recognized&nbsp;&#8594;</p>
+				</a>
+			</div>
+		</div>
+	</div>
+</section>
+
+
+
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+<!-- FOOTER_BEGIN -->
+			<div id="ibm-footer-module"></div>
+			<footer aria-label="IBM">
+				<div id="ibm-footer">
+					<ul>
+						<li><a href="http://www.ibm.com/contact/us/en/">Contact</a></li>
+						<li><a href="http://www.ibm.com/privacy/us/en/">Privacy</a></li>
+						<li><a href="http://www.ibm.com/legal/us/en/">Terms of use</a></li>
+						<li><a href="http://www.ibm.com/accessibility/us/en/">Accessibility</a></li>
+					</ul>
+				</div>
+			</footer>
+			<!-- FOOTER_END -->
+		</div>
+	</div>
+</body>
+</html>
+

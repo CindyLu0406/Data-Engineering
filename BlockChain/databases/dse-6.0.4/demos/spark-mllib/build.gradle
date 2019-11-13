@@ -1,0 +1,39 @@
+apply plugin: 'scala'
+
+jar {
+    destinationDir = projectDir
+    baseName = 'NaiveBayesDemo'
+    manifest.attributes("Main-Class": "com.datastax.bdp.spark.mllib.demo.NaiveBayesDemo")
+}
+
+ext {
+    scoptVersion = '3.2.0'
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url = 'https://repo.datastax.com/public-repos'
+    }
+    maven {
+        url = 'https://dl.bintray.com/spark-jobserver/maven'
+    }
+}
+
+dependencies {
+    if (parent) {
+        compile project(':dse-spark')
+    } else
+    {
+        compile "com.datastax.dse:dse-spark-dependencies:${dseVersion}"
+    }
+}
+
+task run(type:Exec, dependsOn: assemble) {
+    commandLine "dse",  "spark-submit", jar.archiveName
+}
+
+clean.delete << jar.archiveName
+
+defaultTasks 'assemble'

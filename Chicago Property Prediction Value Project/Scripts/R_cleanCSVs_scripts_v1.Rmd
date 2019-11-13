@@ -1,0 +1,415 @@
+---
+title: "DEPA_grocs_data_script"
+author: "Will Dibb"
+date: "8/19/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+#Groceries Data
+
+#clear 
+rm(list=ls())
+#load libraries
+library(plyr)
+library(dplyr)
+library(lubridate)
+library(tidyverse)
+library(RMySQL)
+library(readr)
+library(lattice)
+library(grid)
+
+
+#Read in CSV using readr
+d.grocs <- read_csv("Grocery_Stores_2013.csv")
+
+#Replace column name spaces with '.'
+d.grocs <- d.grocs %>% dplyr::rename_all(list(~make.names(.)))
+
+#Create sequential unique ID for grocery stores
+idvector <- 1:length(d.grocs$STORE.NAME)
+d.grocs$grocery_id <- idvector
+
+#rename columns of interest
+d.grocs <- plyr::rename(d.grocs, c("STORE.NAME" = "store_name",
+                                   "LICENSE.ID" = "license_id",
+                                   "ZIP.CODE" = "zip_code",
+                                   "SQUARE.FEET" = "store_sqft",
+                                   "LATITUDE" = "lat",
+                                   "LONGITUDE" = "lon"))
+
+#substitute null values with 0 for NA license IDs
+d.grocs$license_id[is.na(d.grocs$license_id)] <- 0
+
+#substitute mean store sqft for NA store sqft
+x = round(mean(d.grocs$store_sqft, na.rm = TRUE))
+d.grocs$store_sqft[is.na(d.grocs$store_sqft)] <- x
+
+#select columns of interest
+d.grocs_out <- d.grocs %>%
+  select(c(grocery_id, 
+           store_name,
+           license_id,
+           zip_code,
+           store_sqft,
+           lat,
+           lon))
+
+#write CSV into MySQL files
+write.table(d.grocs_out, 
+            file = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/GrocsTable.csv",
+            row.names=FALSE, 
+            na="", 
+            sep=",")
+
+
+
+```
+
+
+
+
+```{r setup, include=FALSE}
+# 
+# #Schools Data
+# 
+# #clear 
+# rm(list=ls())
+# #load libraries
+# 
+# library(tidyverse)
+# library(forcats)
+# library(RMySQL);
+# library(ggplot2);
+# library(DBI);
+# 
+# 
+# School_Dat <- read.csv("Chicago_pubschools_SY1819.csv")
+# 
+# School_Dat <-  School_Dat %>%
+#   mutate(School_Dat, Overall_Rating = fct_recode(Overall_Rating,
+#     "NA" = "Inability to Rate",
+#     "Level 1" = "Level 1",
+#     "Level 1+" = "Level 1 Plus",
+#     "Level 2" = "Level 2",
+#     "Level 2+" = "Level 2 Plus",
+#     "Level 3" = "Level 3"
+#   )) 
+# 
+#   for (i in 1:length(School_Dat$Overall_Rating)) {
+#       if (as.character(School_Dat$Overall_Rating[i])=='NA') {
+#         if (as.character(School_Dat$Rating_Status[i])=="GOOD STANDING") {
+#           School_Dat$Overall_Rating[i] <- "Level 2"
+#         }
+#         else {
+#           School_Dat$Overall_Rating[i] <- "Level 3"
+#         }
+#         if (as.character(School_Dat$Rating_Status[i])=="GOOD STANDING") {
+#           School_Dat$Overall_Rating[i]<-"Level 2"
+#         }
+#     }
+# 
+#   }
+# 
+# idvector<-1:length(School_Dat$Long_Name)
+# 
+# School_Dat$IdInt<-idvector
+# School_Dat_Out<-School_Dat %>%
+#   select(c(IdInt,
+#            Long_Name,
+#            Primary_Category,
+#            School_Latitude,
+#            School_Longitude,
+#            Zip,
+#            Overall_Rating1))
+# 
+# write.table(School_Dat_Out, 
+#             file = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/SchoolTable.csv",row.names=FALSE, na="", sep=",")
+
+
+
+
+
+#install.packages("tidyverse")
+library(tidyverse)
+library(forcats)
+library(RMySQL);
+library(ggplot2);
+library(DBI);
+library(dplyr)
+
+datapath<-"C:/data"
+
+School_Dat<-(read.csv(file=paste(datapath,"Chicago_Public_Schools_-_School_Profile_Information_SY1819.csv",sep="/"),header=TRUE,sep=",",as.is = c(4,5)))
+
+School_Dat_1<-  mutate(School_Dat,Overall_Rating1 = fct_recode(Overall_Rating,
+    "NA"    = "Inability to Rate",
+    "NA"    ="",
+    "Level 1"      = "Level 1",
+    "Level 1+" = "Level 1+",
+    "Level 2" = "Level 2",
+    "Level 2+"        = "Level 2+",
+    "Level 3" = "Level 3"
+  )) 
+
+
+  for (i in 1:length(School_Dat_1$Overall_Rating1)) {
+      if (as.character(School_Dat_1$Overall_Rating1[i])=='NA') {
+        if (as.character(School_Dat_1$Rating_Status[i])=="GOOD STANDING") {
+          School_Dat_1$Overall_Rating1[i]<-"Level 2"
+        }
+        else {
+          School_Dat_1$Overall_Rating1[i]<-"Level 3"
+        }
+      if (as.character(School_Dat_1$Rating_Status[i])=="GOOD STANDING") {
+        School_Dat_1$Overall_Rating1[i]<-"Level 2"
+        }
+    }
+
+  }
+
+idvector<-1:length(School_Dat_1$Long_Name)
+
+School_Dat_1$IdInt<-idvector
+School_Dat_Out<-select(School_Dat_1,IdInt,Long_Name,Primary_Category,School_Latitude,School_Longitude,Zip,Overall_Rating1)
+
+commas <- which(sapply(School_Dat_Out, function(y) any(grepl(",",y))))
+write.table(School_Dat_Out, 
+            file = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/SchoolTable.csv",row.names=FALSE, na="", sep=",",quote=commas)
+
+```
+
+```{r setup, include=FALSE}
+
+#Business License Data
+
+#clear 
+rm(list=ls())
+#load libraries
+library(plyr)
+library(dplyr)
+library(lubridate)
+library(tidyverse)
+library(RMySQL)
+library(readr)
+library(lattice)
+library(grid)
+
+
+#Read in CSV using readr
+d.bus <- read_csv("Business_Licenses_-_Current_Active.csv")
+
+#Replace column name spaces with '.'
+d.bus <- d.bus %>% dplyr::rename_all(list(~make.names(.)))
+
+#Create sequential unique ID for active businesses
+idvector <- 1:length(d.bus$ID)
+d.bus$business_id <- idvector
+
+#rename columns of interest
+d.bus <- plyr::rename(d.bus, c("LICENSE.ID" = "license_id",
+                                   "ZIP.CODE" = "zip_code",
+                                   "LATITUDE" = "lat",
+                                   "LONGITUDE" = "lon",
+                                   "LICENSE.CODE" = "license_type"))
+
+#substitute null values with 0 for NA license IDs
+d.bus$license_id[is.na(d.bus$license_id)] <- 0
+
+#substitute zero vals for NA lat/lon
+d.bus$lat[is.na(d.bus$lat)] <- 0
+d.bus$lon[is.na(d.bus$lon)] <- 0
+
+
+
+#select columns of interest
+d.bus_out <- d.bus %>%
+  select(c(business_id, 
+           license_id,
+           zip_code,
+           lat,
+           lon,
+           license_type))
+
+#write CSV into MySQL files
+write.table(d.bus_out, 
+            file = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/BusinessTable.csv",
+            row.names=FALSE, 
+            na="", 
+            sep=",")
+
+
+
+```
+
+
+
+```{r setup, include=FALSE}
+
+#Crimes Data
+
+#clear 
+rm(list=ls())
+#load libraries
+library(plyr)
+library(dplyr)
+library(lubridate)
+library(tidyverse)
+library(RMySQL)
+library(readr)
+library(lattice)
+library(grid)
+
+
+#Read in CSV using readr
+d.crime <- read_csv("Crimes_-_2019.csv")
+d.zipbound <- read_csv("Zip_Codes.csv")
+
+d.crime <- plyr::rename(d.crime, c("Boundaries - ZIP Codes" = "zipcode_ID"))
+
+
+#Merge zip boundary data with crime data
+d.crime <- merge(d.crime, d.zipbound, by.x = "zipcode_ID", by.y = "OBJECTID")
+
+
+#Create sequential unique ID for crimes reported
+idvector <- 1:length(d.crime$ID)
+d.crime$crime_id <- idvector
+
+#rename remaining columns of interest
+d.crime <- plyr::rename(d.crime, c("ZIP" = "zip_code",
+                                 "Latitude" = "lat",
+                                 "Longitude" = "lon",
+                                 "Primary Type" = "crime_type"))
+
+# #substitute null values with 0 for NA crime IDs
+# d.crime$crime_id[is.na(d.crime$crime_id)] <- 0
+# 
+# #substitute zero vals for NA lat/lon
+# d.crime$lat[is.na(d.crime$lat)] <- 0
+# d.$lon[is.na(d.crime$lon)] <- 0
+
+#select columns of interest
+d.crime_out <- d.crime %>%
+  select(c(crime_id, 
+           lat,
+           lon,
+           crime_type, 
+           zip_code))
+
+#write CSV into MySQL files
+write.table(d.crime_out, 
+            file = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/CrimeTable.csv",
+            row.names=FALSE, 
+            na="", 
+            sep=",")
+
+
+
+```
+
+```{r setup, include=FALSE}
+
+#Zip-level population data
+
+#clear 
+rm(list=ls())
+#load libraries
+library(plyr)
+library(dplyr)
+library(lubridate)
+library(tidyverse)
+library(RMySQL)
+library(readr)
+library(lattice)
+library(grid)
+
+
+#Read in CSV using readr
+d.pop <- read_csv("2016_AmCommun_Survey_pop-by-zip-code.csv")
+
+#Create sequential unique ID for active businesses
+idvector <- 1:length(d.pop$zip_code)
+d.pop$zip_id <- idvector
+
+#rename remaining columns of interest
+d.pop <- plyr::rename(d.pop, c("y-2016" = "population",
+                                "aggregate" = "aggpop"))
+
+
+
+#select columns of interest
+d.pop_out <- d.pop %>%
+  select(c(zip_id, 
+           zip_code,
+           population,
+           aggpop))
+
+#write CSV into MySQL files
+write.table(d.pop_out, 
+            file = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/PopTable.csv",
+            row.names=FALSE, 
+            na="", 
+            sep=",")
+
+
+
+```
+
+
+```{r setup, include=FALSE}
+
+#Property values data
+
+#clear 
+rm(list=ls())
+#load libraries
+library(plyr)
+library(dplyr)
+library(lubridate)
+library(tidyverse)
+library(RMySQL)
+library(readr)
+library(lattice)
+library(grid)
+
+
+#Read in CSV using readr
+d.props <- read_csv("Chicago_Values_Zillow_Clean.csv")
+
+#Create sequential unique ID for active businesses
+idvector <- 1:length(d.props$Zillow_Results_All)
+d.props$address_id <- idvector
+
+
+#rename remaining columns of interest
+d.props <- plyr::rename(d.props, c("NUMBER" = "address_num",
+                               "STREET" = "address",
+                               "Zestimate" = "property_value",
+                               "Zipcode" = "zip_code",
+                               "LAT" = "lat",
+                               "LON" = "lon"))
+
+#select columns of interest
+d.props_out <- d.props %>%
+  select(c(address_id, 
+           address_num,
+           address,
+           property_value,
+           zip_code,
+           lat,
+           lon))
+
+#write CSV into MySQL files
+write.table(d.props_out, 
+            file = "C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/PropertiesTable.csv",
+            row.names=FALSE, 
+            na="", 
+            sep=",")
+
+
+
+
+```
